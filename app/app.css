@@ -90,3 +90,12 @@ body { min-height: 100dvh; }
 .hop-ghim .nut { min-height: 38px; font-size: 12px; padding: 0 10px; color: #30261D; }
 .hop-ghim .nut.dac { color: #fff; }
 .pin-cty { margin: -4px 0 6px; font-size: 13px; opacity: .8; }
+
+/* Đăng nhập tài xế */
+.dang-nhap-app { width: min(340px, 100%); margin: 8px auto 0; display: grid; gap: 6px; text-align: left; }
+.dang-nhap-app label { font-size: 14px; font-weight: 600; margin-top: 8px; }
+.dang-nhap-app input { padding: 14px; font: inherit; font-size: 18px; border-radius: 12px; border: 1.5px solid var(--vien); background: var(--nen); color: var(--chu); }
+.dang-nhap-app input:focus-visible { outline: 3px solid color-mix(in srgb, var(--nhan) 35%, transparent); border-color: var(--nhan); }
+.dang-nhap-app .nut { margin-top: 14px; min-height: 52px; justify-content: center; font-size: 16px; }
+.thoat-app { background: none; border: 1px solid currentColor; border-radius: 999px; padding: 4px 12px; color: inherit; font: inherit; font-size: 13px; cursor: pointer; }
+.dau-app { gap: 12px; } .dau-app #xe-dang-lai { margin-right: auto; }

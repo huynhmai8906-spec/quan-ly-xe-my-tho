@@ -1,27 +1,29 @@
-﻿(function () {
-  const F = window.FLEET, { so, el, TRU_SO, luu, banDo } = window.SF;
-  // Bản mẫu: một tài xế được giao xe ép rác 63C-171.96. Bản chính thức lấy xe theo tài khoản, máy chủ kiểm tra PIN đã băm.
-  const PIN_MAU = '2468';
-  const XE = F.xe.find(x => x.bien_so === '63C-171.96');
-  const HO_TRO = F.ho_tro[XE.loai];
-
-  // ---------- Màn hình PIN
-  let pin = '', sai = 0;
-  const o = document.querySelectorAll('.o-pin i'), loi = document.getElementById('loi-pin'), phim = document.querySelector('.phim');
-  const veO = () => o.forEach((i, k) => i.classList.toggle('co', k < pin.length));
-  const bam = (k) => {
-    if (sai >= 5) return;
-    if (k === 'xoa') pin = pin.slice(0, -1); else if (pin.length < 4) pin += k;
-    veO();
-    if (pin.length === 4) {
-      if (pin === PIN_MAU) { document.getElementById('man-pin').hidden = true; document.getElementById('ung-dung').hidden = false; mo('tuyen'); }
-      else { sai++; pin = ''; veO(); loi.textContent = sai >= 5 ? 'Nhập sai 5 lần. Liên hệ người phụ trách đội để mở khóa.' : `Mã PIN chưa đúng. Còn ${5 - sai} lần thử.`; }
-    }
+(function () {
+  const { so, el, TRU_SO, luu, banDo } = window.SF;
+  // ---------- Đăng nhập: máy chủ kiểm tra tài khoản và PIN đã băm, khóa tài khoản sau 5 lần sai
+  const loi = document.getElementById('loi-pin'), form = document.getElementById('dang-nhap');
+  const vao = async () => {
+    const d = await API.duLieu();
+    if (!d.xe || !d.xe.length) throw new Error('Tài khoản chưa được giao xe. Liên hệ người phụ trách đội.');
+    document.getElementById('man-pin').hidden = true; document.getElementById('ung-dung').hidden = false;
+    batDau(d);
   };
-  ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'vân tay', '0', 'xoa'].forEach(k => phim.append(el('button', {
-    type: 'button', class: k.length > 1 ? 'phu' : '', 'aria-label': k === 'xoa' ? 'Xóa số vừa nhập' : k === 'vân tay' ? 'Đăng nhập bằng vân tay' : k,
-    onclick: () => k === 'vân tay' ? (loi.textContent = 'Vân tay dùng được khi cài app trên điện thoại có cảm biến.') : bam(k) }, k === 'xoa' ? 'Xóa' : k === 'vân tay' ? 'Vân tay' : k)));
-  document.addEventListener('keydown', e => { if (!document.getElementById('man-pin').hidden) { if (/^\d$/.test(e.key)) bam(e.key); if (e.key === 'Backspace') bam('xoa'); } });
+  const kiemTra = async (n) => {
+    if (n.vai_tro !== 'tai-xe') { await API.dangXuat(); throw new Error('App này dành cho tài khoản tài xế. Tài khoản quản lý dùng trang web.'); }
+    await vao();
+  };
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault(); const nut = form.querySelector('button'); nut.disabled = true; loi.textContent = '';
+    try { await kiemTra(await API.dangNhap(form.elements.username.value, form.elements.password.value)); }
+    catch (l) { loi.textContent = l.message; form.elements.password.value = ''; form.elements.password.focus(); }
+    finally { nut.disabled = false; }
+  });
+  document.getElementById('thoat').addEventListener('click', async () => { try { await API.dangXuat(); } finally { location.reload(); } });
+  (async () => { try { await kiemTra(await API.toi()); } catch (l) { if (l.trangThai !== 401) loi.textContent = l.message; } })();
+
+  function batDau(F) {
+  const XE = F.xe[0];
+  const HO_TRO = F.ho_tro[XE.loai];
 
   document.getElementById('xe-dang-lai').textContent = `Xe ${XE.bien_so}`;
   const nd = document.getElementById('noi-dung');
@@ -84,8 +86,9 @@
       el('div', { class: 'chup' }, chon, el('label', { class: 'nut', for: 'anh-su-co' }, 'Chụp ảnh'), xem),
       el('button', { class: 'nut dac gui', type: 'button', onclick: () => {
         if (!loai) { tb.style.color = 'var(--do)'; tb.textContent = 'Chọn loại sự cố trước khi gửi.'; return; }
-        const ds = luu.doc('su-co', []); ds.push({ xe: XE.bien_so, loai, ghi: ghi.value.slice(0, 300), anh, luc: new Date().toISOString() }); luu.ghi('su-co', ds);
-        tb.style.color = ''; tb.textContent = 'Đã lưu báo cáo trên máy. Bản chính thức gửi ngay về máy chủ, kèm vị trí xe lúc báo.'; } }, 'Gửi báo cáo'), tb));
+        API.baoSuCo({ loai, ghi: ghi.value.slice(0, 300) })
+          .then(() => { tb.style.color = ''; tb.textContent = 'Đã gửi báo cáo về Phòng Kế hoạch Kinh doanh.'; })
+          .catch((l) => { tb.style.color = 'var(--do)'; tb.textContent = l.message; }); } }, 'Gửi báo cáo'), tb));
   }
 
   const TAB = { tuyen, 'hanh-trinh': () => window.HanhTrinh.ve(nd), 'hieu-qua': hieuQua, 'su-co': suCo };
@@ -95,4 +98,6 @@
     document.querySelectorAll('.thanh-duoi button[aria-current]').forEach(b => b.setAttribute('aria-current', 'page'));
   }
   document.querySelectorAll('.thanh-duoi button').forEach(b => b.addEventListener('click', () => mo(b.dataset.tab)));
+  mo('tuyen');
+  }
 })();

@@ -5,22 +5,32 @@ Bản mẫu web quản lý đội xe chuyên dùng và ứng dụng cho tài x�
 ## Gồm những gì
 
 - `web/index.html`: một trang duy nhất. Menu "Giới thiệu" thả xuống các mục về Công ty; sáu mục quản lý xe là Tổng quan, Cảnh báo, Đội xe, Nhiên liệu, Điều phối, Báo cáo.
-- `app/index.html`: ứng dụng tài xế (mã PIN bản mẫu 2468), ghi hành trình GPS, lưu và mở tệp GPX, báo sự cố.
-- `shared/`: dữ liệu (`data.js`, sinh từ `tools/xuat_du_lieu.py`), hàm dùng chung, đọc ghi GPX, màu và chữ.
+- `app/index.html`: ứng dụng tài xế (đăng nhập bằng tài khoản tài xế), ghi hành trình GPS, lưu và mở tệp GPX, báo sự cố.
+- `shared/`: hàm dùng chung, gọi API, đọc ghi GPX, màu và chữ.
+- `server/`: backend FastAPI, tài khoản, phiên, API số liệu, kiểm thử bảo mật.
 - `docs/`: yêu cầu, kiến trúc, quyết định thiết kế, tiến độ.
 
 ## Chạy thử
 
-Trang chỉ dùng HTML, CSS và JavaScript thuần, không cần cài đặt. Mở bằng một máy chủ tĩnh bất kỳ, ví dụ:
+Giao diện là HTML, CSS và JavaScript thuần; backend là Python FastAPI (thư mục `server/`). Số liệu thật không có trong kho: đặt tệp `fleet.json` (sinh bằng `tools/xuat_du_lieu.py`) vào `server/du_lieu/`.
 
 ```
-python -m http.server 8766
+python -m venv server/.venv
+server/.venv/Scripts/python -m pip install -r server/requirements.txt
+server/.venv/Scripts/python -m server.tao_tai_khoan quanly01 quan-ly
+server/.venv/Scripts/python -m server.tao_tai_khoan taixe01 tai-xe X05
+server/.venv/Scripts/python -m uvicorn server.app:app --port 8770
 ```
 
-rồi vào `http://localhost:8766/web/index.html`.
+Rồi vào `http://localhost:8770/`. Khi chạy thật qua HTTPS, đặt biến môi trường `SF_HTTPS=1` để cookie phiên có cờ Secure. Kiểm thử bảo mật: `server/.venv/Scripts/python -m pytest server -q`.
+
+## Bảo mật
+
+- Đăng nhập kiểm tra ở máy chủ; mật khẩu băm argon2; sai 5 lần khóa 15 phút; phiên 8 giờ trong cookie HttpOnly, SameSite=Strict.
+- Quản lý xem cả đội; tài xế chỉ nhận số liệu của xe được giao. Mọi lần xem số liệu, lưu kết luận, đặt xe đều ghi nhật ký kèm tên người.
+- Bản trên GitHub Pages chỉ là trang tĩnh: phần Giới thiệu xem được, các mục quản lý cần máy chủ nên sẽ báo chưa kết nối.
 
 Thư viện bản đồ Leaflet 1.9.4 tải từ cdnjs, nền bản đồ từ OpenStreetMap, chữ Be Vietnam Pro từ Google Fonts.
-
 ## Lưu ý về số liệu và hình ảnh
 
 - Vị trí xe trên bản đồ và trong sơ đồ bãi là mô phỏng; màu tình trạng lấy từ số liệu thật.

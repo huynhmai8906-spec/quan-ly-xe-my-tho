@@ -45,3 +45,7 @@ Người dùng duyệt giai đoạn 1–4 và trả lời 4 câu hỏi mở tron
 - Sáu mục có cùng kiểu đầu trang (tiêu đề lớn + 4 con số). Thống nhất: "Cần kiểm tra" = trạng thái đỏ (6 xe); 3 xe chỉ có 1 ngày khác thường là "Theo dõi".
 - Tổng quan: danh sách cần xem đặt cạnh bản đồ, thêm thẻ ba đội. Cảnh báo: thẻ từng xe có biểu đồ 4 tuần, lọc theo đã/chưa kết luận, lời giải thích không dùng tên thuật toán. Nhiên liệu: thanh so với định mức từng xe, thẻ định mức mới. Báo cáo: hai kịch bản dạng thẻ, bảng điều kiện thu gọn.
 - Ảnh lĩnh vực 2 và 5 lấy từ trang Công ty (ảnh 06, 34), thay ảnh Canva. Khung truyền hình dùng clip thật `web/video/su-kien.mp4` người dùng cung cấp.
+
+## 26/11/2026: backend thật (ADR-005)
+- server/app.py: đăng nhập, phiên, phân quyền, API số liệu, kết luận, lịch xe, sự cố, nhật ký. 12 kiểm thử bảo mật trong server/test_bao_mat.py đều qua.
+- Đã gỡ shared/data.js và mockups/data.js khỏi kho; số liệu ở server/du_lieu (không đưa lên kho). Sửa nền bản đồ bị OSM chặn.

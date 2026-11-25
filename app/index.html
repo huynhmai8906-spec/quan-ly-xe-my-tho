@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&display=swap&subset=vietnamese">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <link rel="stylesheet" href="../shared/brand.css?v=8">
-<link rel="stylesheet" href="app.css?v=13">
+<link rel="stylesheet" href="app.css?v=14">
 <script src="../shared/che-do.js?v=8"></script>
 </head>
 <body>
@@ -20,17 +20,23 @@
     <svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="none" stroke="currentColor" stroke-width="1.2"/><g stroke="currentColor" stroke-width="1"><line x1="32" y1="12" x2="32" y2="52"/><line x1="12" y1="32" x2="52" y2="32"/><line x1="18" y1="18" x2="46" y2="46"/><line x1="46" y1="18" x2="18" y2="46"/></g><circle cx="32" cy="32" r="6" fill="currentColor"/></svg>
     <h1 id="pin-tieu-de">Quản lý xe</h1>
     <p class="pin-cty">Công ty TNHH MTV Công trình Đô thị Mỹ Tho</p>
-    <p>Nhập mã PIN 4 số để bắt đầu ca làm việc</p>
+    <p>Đăng nhập bằng tài khoản tài xế</p>
   </div>
-  <div class="o-pin" aria-live="polite" aria-label="Số đã nhập"><i></i><i></i><i></i><i></i></div>
-  <p class="loi-pin" id="loi-pin" role="alert"></p>
-  <div class="phim" role="group" aria-label="Bàn phím số"></div>
-  <p class="goi-y">Bản mẫu: PIN 2468. Bản chính thức dùng PIN riêng từng tài xế hoặc vân tay trên điện thoại.</p>
+  <form class="dang-nhap-app" id="dang-nhap" autocomplete="on">
+    <label for="tk-ten">Tên đăng nhập</label>
+    <input id="tk-ten" name="username" autocomplete="username" autocapitalize="off" spellcheck="false" maxlength="40" required>
+    <label for="tk-pin">Mã PIN</label>
+    <input id="tk-pin" name="password" type="password" inputmode="numeric" autocomplete="current-password" maxlength="12" required>
+    <p class="loi-pin" id="loi-pin" role="alert"></p>
+    <button class="nut dac" type="submit">Bắt đầu ca làm việc</button>
+  </form>
+  <p class="goi-y">Mỗi tài xế có tài khoản và mã PIN riêng do người phụ trách đội cấp. Nhập sai 5 lần thì tài khoản tạm khóa 15 phút.</p>
 </div>
 
 <div class="ung-dung" id="ung-dung" hidden>
   <header class="dau-app">
     <span id="xe-dang-lai"></span>
+    <button type="button" class="thoat-app" id="thoat">Đăng xuất</button>
     <div class="che-do" role="group" aria-label="Chế độ hiển thị"><button type="button" data-che-do="sang">Sáng</button><span>/</span><button type="button" data-che-do="toi">Tối</button></div>
   </header>
   <main id="noi-dung" tabindex="-1"></main>
@@ -43,10 +49,10 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<script src="../shared/data.js?v=8"></script>
 <script src="../shared/common.js?v=16"></script>
 <script src="../shared/gpx.js?v=13"></script>
+<script src="../shared/api.js?v=1"></script>
 <script src="hanh-trinh.js?v=13"></script>
-<script src="app.js?v=13"></script>
+<script src="app.js?v=15"></script>
 </body>
 </html>

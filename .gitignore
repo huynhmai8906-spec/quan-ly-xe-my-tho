@@ -4,3 +4,11 @@ __pycache__/
 *.pyc
 .DS_Store
 Thumbs.db
+
+# Backend: môi trường Python, cơ sở dữ liệu và số liệu thật không đưa lên kho
+server/.venv/
+server/du_lieu/
+.pytest_cache/
+# Số liệu thật chỉ phục vụ qua API sau khi đăng nhập
+shared/data.js
+mockups/data.js

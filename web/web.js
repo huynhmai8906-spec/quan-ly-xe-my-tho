@@ -1,5 +1,7 @@
 (function () {
-  const F = window.FLEET, { so, el, TRANG_THAI, TRU_SO, luu, banDo } = window.SF;
+  // Số liệu do khoi-dong.js tải từ /api/du-lieu sau khi đăng nhập; khách chưa đăng nhập thì rỗng
+  const F = window.FLEET || { xe: [], nguong_tuan: 1, chi_phi_2025: [], tong_2025: 0, kiem_chung: {}, gia_dau: 0 }, { so, el, TRANG_THAI, TRU_SO, banDo } = window.SF;
+  const lucKL = k => k.luc ? `${new Date(k.luc * 1000).toLocaleString('vi-VN')}, ${k.nguoi}` : '';
   const NG = F.nguong_tuan, XE = F.xe, CB = XE.filter(x => x.cam_bien);
   const trang = document.getElementById('trang');
   const ten = x => x.bien_so ? `${x.bien_so}` : x.ten;
@@ -77,7 +79,7 @@
   // ---------- Trang giới thiệu công khai: không có dữ liệu vận hành nội bộ
   function congKhai() {
     const thanhSo = el('div', { class: 'thanh-so' },
-      el('div', {}, icon('xe'), el('b', { class: 'so', text: String(XE.length) }), el('span', { text: 'Xe chuyên dùng' })),
+      el('div', {}, icon('xe'), el('b', { class: 'so', text: '42' }), el('span', { text: 'Xe chuyên dùng' })),
       el('div', {}, icon('la'), el('b', { class: 'so', text: '411' }), el('span', { text: 'Người lao động, năm 2025' })),
       el('div', {}, icon('cong'), el('b', { class: 'so', text: '3' }), el('span', { text: 'Đội sản xuất' })));
     const hero = el('section', { class: 'hero', 'aria-labelledby': 'tieu-de-chinh' },
@@ -149,7 +151,7 @@
     const dem = { xanh: 0, vang: 0, do: 0, chua: 0 }; XE.forEach(x => dem[x.trang_thai]++);
     const lit = CB.reduce((a, x) => a + (x.lit || 0), 0);
     const kt = CB.reduce((a, x) => a + x.ngay_hd, 0) / CB.length / 31 * 100;
-    const ck = canKiemTra(), kl = luu.doc('ket-luan', {});
+    const ck = canKiemTra(), kl = window.KET_LUAN || {};
     const dau = dauTrang('Quản lý xe, tháng 7/2026', 'Tổng quan', 'đội xe',
       `${XE.length} xe chuyên dùng của ba đội, ${CB.length} xe có cảm biến nhiên liệu gửi số liệu từng ngày. Trang này cho biết tháng này tốn bao nhiêu dầu, xe chạy đủ chưa và xe nào cần xem trước.`,
       [['xe', so(lit * F.gia_dau / 1e6, 1), 'Triệu đồng tiền dầu tháng 7 (25 xe có cảm biến)'], ['bieu', so(kt, 1) + '%', 'Số ngày xe có chạy trên tổng số ngày'],
@@ -292,14 +294,14 @@
 
   // ---------- Cảnh báo
   function canhBao() {
-    const ck = canKiemTra(), kl = luu.doc('ket-luan', {});
+    const ck = canKiemTra(), kl = window.KET_LUAN || {};
     const LY_DO = ['Làm việc tại chỗ', 'Tuyến xa, chuyến ngoài khu vực', 'Lỗi thiết bị', 'Cần kiểm tra kỹ thuật', 'Chưa rõ, theo dõi tiếp'];
     const dsThe = el('div', { class: 'luoi-cb' }), dem = el('p', { class: 'bx-dem', 'aria-live': 'polite' });
     let loc = 'tat-ca';
     const the = ck.map(r => {
       const x = r.x, k = kl[x.ma] || {}, nang = x.trang_thai === 'do';
       const nhap = el('textarea', { 'aria-label': `Ghi chú kết luận cho xe ${ten(x)}`, maxlength: '500', placeholder: 'Ví dụ: đối chiếu nhật ký, xe cẩu rác tại chỗ 3 giờ ngày 18/7' }); nhap.value = k.ghi || '';
-      const bao = el('span', { class: 'da-luu', 'aria-live': 'polite', text: k.luc ? `Đã lưu ${k.luc}` : '' });
+      const bao = el('span', { class: 'da-luu', 'aria-live': 'polite', text: k.luc ? `Đã lưu ${lucKL(k)}` : '' });
       const nhan = el('span', { class: 'nhan-nho ' + (k.luc ? 'xong' : 'cho'), text: k.luc ? 'Đã kết luận' : 'Chưa kết luận' });
       let chon = k.ly_do || '';
       const chips = el('div', { class: 'chon', role: 'group', 'aria-label': 'Nguyên nhân' }, ...LY_DO.map(l => el('button', { class: 'chip', type: 'button', 'aria-pressed': String(l === chon),
@@ -312,10 +314,12 @@
         x.chi_so_tuan.length === 0 ? null : el('div', { class: 'tuan' }, ...x.chi_so_tuan.map((c, i) => el('div', { class: c > NG ? 'vuot' : '' },
           el('i', { style: `height:${Math.min(100, Math.max(6, c / 1.5 * 100))}%` }), el('b', { text: phanTram(c) }), el('span', { text: `Tuần ${i + 1}` })))),
         el('details', { class: 'ket-luan' }, el('summary', {}, nhan, el('span', { text: k.ly_do ? `Nguyên nhân: ${k.ly_do}` : 'Ghi kết luận' })),
-          chips, nhap, el('div', { class: 'chon' }, el('button', { class: 'nut dac', type: 'button', onclick: () => {
-            const luc = new Date().toLocaleString('vi-VN'); kl[x.ma] = { ly_do: chon, ghi: nhap.value.slice(0, 500), luc };
-            if (luu.ghi('ket-luan', kl)) { bao.textContent = `Đã lưu ${luc}`; nhan.textContent = 'Đã kết luận'; nhan.className = 'nhan-nho xong'; t.dataset.xong = '1'; capNhat(); }
-            else bao.textContent = 'Trình duyệt chặn lưu; kết luận chưa được giữ lại'; } }, 'Lưu kết luận'), bao)));
+          chips, nhap, el('div', { class: 'chon' }, el('button', { class: 'nut dac', type: 'button', onclick: async (e) => {
+            const nut = e.currentTarget; nut.disabled = true; bao.style.color = ''; bao.textContent = 'Đang lưu…';
+            try {
+              kl[x.ma] = await API.luuKetLuan(x.ma, { ly_do: chon, ghi: nhap.value.slice(0, 500) });
+              bao.textContent = `Đã lưu ${lucKL(kl[x.ma])}`; nhan.textContent = 'Đã kết luận'; nhan.className = 'nhan-nho xong'; t.dataset.xong = '1'; capNhat();
+            } catch (loi) { bao.style.color = 'var(--do)'; bao.textContent = loi.message; } finally { nut.disabled = false; } } }, 'Lưu kết luận'), bao)));
       return t;
     });
     const ve = () => { let n = 0; the.forEach(t => { const hien = loc === 'tat-ca' || (loc === 'chua') === !t.dataset.xong; t.hidden = !hien; n += hien; });
@@ -331,14 +335,14 @@
         ['la', '', 'Xe đã có kết luận'], ['xe', so(F.kiem_chung.bao_nham_moi, 0) + '%', 'Tỷ lệ báo nhầm khi thử nghiệm']]);
     dau.querySelectorAll('.bx-so b')[2].replaceWith(soXong);
     trang.append(dau, el('section', { class: 'muc' }, el('div', { class: 'khung-rong' }, el('div', { class: 'thanh-loc' }, chipLoc, dem), dsThe,
-      el('p', { class: 'ghi', text: 'Bản mẫu lưu kết luận trên máy đang dùng. Bản chính thức lưu vào cơ sở dữ liệu kèm tên người kết luận và nhật ký thay đổi.' }))));
+      el('p', { class: 'ghi', text: 'Kết luận lưu trên máy chủ kèm tên người ghi và thời điểm; mọi lần lưu được ghi vào nhật ký.' }))));
     capNhat();
   }
 
   // ---------- Điều phối xe dùng chung
   function dieuPhoi() {
     const theoGio = XE.filter(x => x.cam_bien && x.don_vi === 'lít/giờ');
-    const datXe = luu.doc('dat-xe', []);
+    const datXe = window.DAT_XE || [];
     const NGAY = ['Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy'];
     const luoi = el('div', { class: 'luoi-tuan' });
     const veLuoi = () => {
@@ -352,11 +356,11 @@
     const chonNgay = el('select', { id: 'f-ngay' }, ...NGAY.map(n => el('option', { value: n, text: n })));
     const gio = el('select', { id: 'f-gio' }, ...['Sáng 6:00–11:00', 'Chiều 13:00–17:00', 'Cả ngày'].map(g => el('option', { value: g, text: g })));
     const tb = el('p', { class: 'da-luu', 'aria-live': 'polite' });
-    const form = el('form', { class: 'dang-ky', onsubmit: (e) => {
+    const form = el('form', { class: 'dang-ky', onsubmit: async (e) => {
       e.preventDefault();
       const moi = { xe: chonXe.value, doi: chonDoi.value, ngay: chonNgay.value, gio: gio.value };
-      if (datXe.some(d => d.xe === moi.xe && d.ngay === moi.ngay && (d.gio === moi.gio || d.gio === 'Cả ngày' || moi.gio === 'Cả ngày'))) { tb.style.color = 'var(--do)'; tb.textContent = 'Xe đã có lịch trùng buổi này. Chọn buổi khác hoặc xe khác.'; return; }
-      datXe.push(moi); luu.ghi('dat-xe', datXe); veLuoi(); tb.style.color = ''; tb.textContent = 'Đã đăng ký lịch xe.'; } },
+      try { await API.themDatXe(moi); datXe.push(moi); veLuoi(); tb.style.color = ''; tb.textContent = 'Đã đăng ký lịch xe.'; }
+      catch (loi) { tb.style.color = 'var(--do)'; tb.textContent = loi.message; } } },
       el('label', { class: 'o' }, 'Xe', chonXe), el('label', { class: 'o' }, 'Đội đăng ký', chonDoi), el('label', { class: 'o' }, 'Ngày', chonNgay), el('label', { class: 'o' }, 'Buổi', gio),
       el('button', { class: 'nut dac', type: 'submit' }, 'Đăng ký xe'));
     const kt = CB.reduce((a, x) => a + x.ngay_hd, 0) / CB.length / 31 * 100, cau = XE.find(x => x.bien_so === '63M-000.42');
@@ -415,6 +419,35 @@
     demSo(trang.querySelectorAll('.bx-so b'));
   }
 
+
+  // ---------- Đăng nhập: các mục quản lý chỉ mở khi máy chủ xác nhận tài khoản quản lý
+  function dangNhapTrang(id) {
+    const n = window.NGUOI_DUNG;
+    const loi = el('p', { class: 'loi-dn', role: 'alert', text: window.LOI_KET_NOI || '' });
+    const ten = el('input', { id: 'dn-ten', name: 'username', autocomplete: 'username', required: true, maxlength: '40', autocapitalize: 'off', spellcheck: 'false' });
+    const mk = el('input', { id: 'dn-mk', name: 'password', type: 'password', autocomplete: 'current-password', required: true, maxlength: '128' });
+    const nut = el('button', { class: 'nut dac', type: 'submit' }, 'Đăng nhập');
+    const form = el('form', { class: 'the-dang-nhap', onsubmit: async (e) => {
+      e.preventDefault(); nut.disabled = true; loi.textContent = '';
+      try { await API.dangNhap(ten.value, mk.value); location.reload(); }
+      catch (l) { loi.textContent = l.message; mk.value = ''; mk.focus(); nut.disabled = false; } } },
+      el('p', { class: 'nhan-muc', text: 'Khu vực nội bộ' }),
+      el('h1', { text: 'Đăng nhập quản lý xe' }),
+      el('p', { class: 'dan', text: 'Các mục Tổng quan, Cảnh báo, Đội xe, Nhiên liệu, Điều phối và Báo cáo có số liệu vận hành của Công ty, chỉ mở cho tài khoản được cấp.' }),
+      n && n.vai_tro !== 'quan-ly'
+        ? el('p', { class: 'loi-dn', text: `Tài khoản ${n.ten} là tài khoản tài xế; hãy dùng app tài xế.` })
+        : el('div', {}, el('label', { for: 'dn-ten', text: 'Tên đăng nhập' }), ten, el('label', { for: 'dn-mk', text: 'Mật khẩu' }), mk, loi, nut),
+      el('p', { class: 'ghi', text: 'Nhập sai 5 lần liên tiếp thì tài khoản tạm khóa 15 phút. Phiên đăng nhập hết hạn sau 8 giờ.' }));
+    trang.append(el('section', { class: 'muc muc-den' }, el('div', { class: 'khung-rong' }, form)));
+    if (!n) setTimeout(() => ten.focus(), 50);
+  }
+  // Tên người đang đăng nhập và nút đăng xuất trên thanh thông báo
+  if (window.NGUOI_DUNG) {
+    const o = document.querySelector('.tb-phai');
+    if (o) o.prepend(el('span', { class: 'tb-nguoi', text: window.NGUOI_DUNG.ten }),
+      el('button', { type: 'button', class: 'tb-thoat', onclick: async () => { try { await API.dangXuat(); } finally { location.hash = 'gioi-thieu'; location.reload(); } } }, 'Đăng xuất'));
+  }
+
   // ---------- Điều hướng theo dấu #
   // Trang chủ là Giới thiệu; '#gioi-thieu/linh-vuc' mở trang Giới thiệu rồi cuộn tới mục linh-vuc
   const TRANG = { 'gioi-thieu': congKhai, 'tong-quan': tongQuan, 'canh-bao': canhBao, 'doi-xe': doiXe, 'nhien-lieu': nhienLieu, 'dieu-phoi': dieuPhoi, 'bao-cao': thiDiem };
@@ -425,7 +458,7 @@
     let h = (location.hash || '#gioi-thieu').slice(1); h = BI_DANH[h] || h;
     let [id, neo] = h.split('/'); if (!TRANG[id]) id = 'gioi-thieu';
     const daMo = dangMo !== '';   // lần mở đầu tiên thì nhảy thẳng tới mục, không cuộn mượt
-    if (id !== dangMo) { trang.replaceChildren(); TRANG[id](); dangMo = id; }
+    if (id !== dangMo) { trang.replaceChildren(); if (id !== 'gioi-thieu' && !window.FLEET) dangNhapTrang(id); else TRANG[id](); dangMo = id; }
     document.querySelectorAll('.dieu-huong > a').forEach(a => a.toggleAttribute('aria-current', a.getAttribute('href') === '#' + id));
     document.querySelectorAll('.dieu-huong a[aria-current]').forEach(a => a.setAttribute('aria-current', 'page'));
     if (menuXo) { menuXo.open = false; menuXo.classList.toggle('dang-xem', id === 'gioi-thieu'); }
@@ -442,6 +475,7 @@
     e.preventDefault();
     const o = document.getElementById('o-tim');
     const q = o.value.trim().toUpperCase().replace(/[^0-9A-Z]/g, '');
+    if (!window.FLEET) { location.hash = 'doi-xe'; return; }   // chưa đăng nhập: đưa tới ô đăng nhập
     const x = q && XE.find(v => v.bien_so && v.bien_so.replace(/[^0-9A-Z]/g, '').includes(q));
     if (!x) { o.setCustomValidity('Không tìm thấy xe có biển số này'); o.reportValidity(); return; }
     o.setCustomValidity(''); location.hash = 'doi-xe';

@@ -1,5 +1,5 @@
 ﻿# -*- coding: utf-8 -*-
-"""Xuất dữ liệu thật thành shared/data.js cho web quản trị và app tài xế.
+"""Xuất dữ liệu thật thành server/du_lieu/fleet.json; backend phục vụ qua API cho web quản trị và app tài xế.
 
 Đầu vào, đều trong thư mục cha, không có họ tên tài xế:
   DU LIEU HOC MAY - XE NGAY THANG 7-2026.xlsx  sheet DATA: xe – ngày tháng 7/2026 từ thiết bị giám sát hành trình
@@ -128,10 +128,10 @@ OUT = dict(
     mo_hinh=[['Bình quân lít/km theo từng xe', 7.6], ['Gradient Boosting', 8.4], ['Hồi quy hỗn hợp', 8.5], ['Random Forest', 9.3], ['Bình quân lít/km chung', 19.1]],
     kiem_chung=dict(cu=17.6, moi=8.5, phat_hien_moi=89.2, phat_hien_cu=23.6, bao_nham_moi=5.0, bao_nham_cu=26.3, mde=2.5),
 )
-os.makedirs(os.path.join(ROOT, 'shared'), exist_ok=True)
-with open(os.path.join(ROOT, 'shared', 'data.js'), 'w', encoding='utf-8') as f:
-    f.write('// Sinh tự động bởi tools/xuat_du_lieu.py từ dữ liệu thật. Không sửa tay. Không có họ tên tài xế.\n')
-    f.write('window.FLEET = ' + json.dumps(OUT, ensure_ascii=False, indent=1) + ';\n')
+# Số liệu thật chỉ nằm phía máy chủ (server/du_lieu, không đưa lên kho); giao diện lấy qua /api/du-lieu sau khi đăng nhập
+os.makedirs(os.path.join(ROOT, 'server', 'du_lieu'), exist_ok=True)
+with open(os.path.join(ROOT, 'server', 'du_lieu', 'fleet.json'), 'w', encoding='utf-8') as f:
+    json.dump(OUT, f, ensure_ascii=False, indent=1)
 import collections
 print(len(xe), 'xe;', collections.Counter(x['trang_thai'] for x in xe), '; nguong', round(NGUONG, 3))
 print('khong bien so:', [x['ten'] for x in xe if not x['bien_so']][:20])
