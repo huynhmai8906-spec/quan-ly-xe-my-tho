@@ -23,10 +23,13 @@ window.SF = (function () {
     doc(k, mac) { try { const v = localStorage.getItem('sf.' + k); return v == null ? mac : JSON.parse(v); } catch (e) { return mac; } },
     ghi(k, v) { try { localStorage.setItem('sf.' + k, JSON.stringify(v)); return true; } catch (e) { return false; } }
   };
-  // Bản đồ nền tối tông ấm: tile OpenStreetMap lọc màu bằng CSS
+  // Bản đồ nền: tile OpenStreetMap lọc màu bằng CSS.
+  // Theo quy định dùng tile của OSM: dùng tile.openstreetmap.org (không còn a/b/c), gửi Referer (trang để no-referrer
+  // nên phải đặt riêng cho ảnh tile) và ghi nguồn có liên kết tới trang bản quyền.
   function banDo(id, tam, zoom, opt) {
     const map = L.map(id, Object.assign({ zoomControl: false, scrollWheelZoom: false, attributionControl: true }, opt || {})).setView(tam, zoom);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '© OpenStreetMap', className: 'tile-am' }).addTo(map);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, referrerPolicy: 'strict-origin-when-cross-origin', className: 'tile-am',
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>' }).addTo(map);
     return map;
   }
   return { so, el, TRANG_THAI, TRU_SO, luu, banDo };
