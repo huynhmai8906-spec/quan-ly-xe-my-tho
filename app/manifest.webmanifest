@@ -1,0 +1,9 @@
+{
+  "name": "Quản lý xe tại Công ty TNHH MTV Công trình Đô thị Mỹ Tho",
+  "short_name": "Quản lý xe",
+  "lang": "vi",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#000000"
+}

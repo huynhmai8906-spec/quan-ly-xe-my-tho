@@ -1,0 +1,6 @@
+# Cấu hình riêng trên máy
+.claude/
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db

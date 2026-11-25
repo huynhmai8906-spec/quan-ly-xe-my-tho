@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://cdnjs.cloudflare.com; connect-src 'self'">
+<meta name="referrer" content="no-referrer">
+<meta name="description" content="Công ty TNHH MTV Công trình Đô thị Mỹ Tho: hệ thống quản lý đội xe chuyên dùng.">
+<title>Quản lý xe tại Công ty TNHH MTV Công trình Đô thị Mỹ Tho</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&display=swap&subset=vietnamese">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="../shared/brand.css?v=15">
+<link rel="stylesheet" href="web.css?v=15">
+<link rel="stylesheet" href="canva.css?v=15">
+<link rel="stylesheet" href="bai-xe.css?v=5">
+<link rel="stylesheet" href="giao-dien.css?v=9">
+<script src="../shared/che-do.js?v=15"></script>
+</head>
+<body>
+<a class="bo-qua" href="#trang">Bỏ qua thanh điều hướng</a>
+<div class="thong-bao">
+  <div class="khung-rong">
+    <span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h3l5 4V6L7 10H4zM16 9a4 4 0 0 1 0 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Công ty Đô thị Mỹ Tho, đồng hành cùng sự phát triển đô thị</span>
+    <span class="tb-phai">
+      <span class="che-do" role="group" aria-label="Chế độ hiển thị"><button type="button" data-che-do="sang">Sáng</button><span>/</span><button type="button" data-che-do="toi">Tối</button></span>
+      <a href="../app/index.html">App tài xế</a>
+    </span>
+  </div>
+</div>
+<header class="dau">
+  <div class="dau-hang khung-rong">
+    <a class="logo" href="#gioi-thieu" aria-label="Quản lý xe tại Công ty TNHH MTV Công trình Đô thị Mỹ Tho, trang chủ">
+      <svg viewBox="0 0 48 40" aria-hidden="true"><g fill="currentColor"><rect x="4" y="18" width="6" height="18"/><rect x="12" y="8" width="7" height="28"/><rect x="21" y="14" width="6" height="22"/><rect x="29" y="4" width="7" height="32"/><rect x="38" y="20" width="6" height="16"/></g><path d="M1 38 Q24 30 47 38" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+      <span class="ten-ud"><b>Quản lý xe</b><small>Công ty TNHH MTV Công trình Đô thị Mỹ Tho</small></span>
+    </a>
+    <nav class="dieu-huong" aria-label="Điều hướng chính">
+      <details class="menu-xo">
+        <summary>Giới thiệu</summary>
+        <div class="xo-ds">
+          <a href="#gioi-thieu/ve-cong-ty">Về Công ty</a>
+          <a href="#gioi-thieu/linh-vuc">Lĩnh vực hoạt động</a>
+          <a href="#gioi-thieu/cong-dong">Cộng đồng</a>
+          <a href="#gioi-thieu/hinh-anh">Hình ảnh</a>
+          <a href="#gioi-thieu/lien-he">Liên hệ</a>
+        </div>
+      </details>
+      <a href="#tong-quan">Tổng quan</a>
+      <a href="#canh-bao">Cảnh báo</a>
+      <a href="#doi-xe">Đội xe</a>
+      <a href="#nhien-lieu">Nhiên liệu</a>
+      <a href="#dieu-phoi">Điều phối</a>
+      <a href="#bao-cao">Báo cáo</a>
+    </nav>
+    <form class="tim" role="search" id="tim">
+      <label for="o-tim" class="an-chu">Tìm xe theo biển số</label>
+      <input id="o-tim" type="search" placeholder="Tìm biển số xe…" maxlength="20" autocomplete="off">
+      <button type="submit" aria-label="Tìm"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="m16 16 4.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+    </form>
+  </div>
+</header>
+
+<main id="trang" tabindex="-1"></main>
+
+<footer class="chan" id="lien-he">
+  <div class="khung-rong chan-luoi">
+    <div><b>Công ty TNHH MTV Công trình Đô thị Mỹ Tho</b>
+      <p>Số 12 Huỳnh Tịnh Của, phường Mỹ Tho, tỉnh Đồng Tháp<br>Điện thoại: 0273 3976 712, 0273 3872 656</p></div>
+    <div><b>Quản lý xe</b><p>Bản mẫu Giải pháp 7 của đề án quản trị chi phí đội xe. Dữ liệu thật tháng 7/2026, đã bỏ họ tên tài xế.</p></div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="../shared/data.js?v=15"></script>
+<script src="../shared/common.js?v=15"></script>
+<script src="../shared/gpx.js?v=15"></script>
+<script src="bai-xe.js?v=6"></script>
+<script src="web.js?v=22"></script>
+</body>
+</html>

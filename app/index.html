@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://cdnjs.cloudflare.com; connect-src 'self'">
+<meta name="referrer" content="no-referrer">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Quản lý xe tại Công ty TNHH MTV Công trình Đô thị Mỹ Tho, tài xế</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&display=swap&subset=vietnamese">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="../shared/brand.css?v=8">
+<link rel="stylesheet" href="app.css?v=13">
+<script src="../shared/che-do.js?v=8"></script>
+</head>
+<body>
+<div class="man" id="man-pin" aria-labelledby="pin-tieu-de">
+  <div class="pin-dau">
+    <svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="none" stroke="currentColor" stroke-width="1.2"/><g stroke="currentColor" stroke-width="1"><line x1="32" y1="12" x2="32" y2="52"/><line x1="12" y1="32" x2="52" y2="32"/><line x1="18" y1="18" x2="46" y2="46"/><line x1="46" y1="18" x2="18" y2="46"/></g><circle cx="32" cy="32" r="6" fill="currentColor"/></svg>
+    <h1 id="pin-tieu-de">Quản lý xe</h1>
+    <p class="pin-cty">Công ty TNHH MTV Công trình Đô thị Mỹ Tho</p>
+    <p>Nhập mã PIN 4 số để bắt đầu ca làm việc</p>
+  </div>
+  <div class="o-pin" aria-live="polite" aria-label="Số đã nhập"><i></i><i></i><i></i><i></i></div>
+  <p class="loi-pin" id="loi-pin" role="alert"></p>
+  <div class="phim" role="group" aria-label="Bàn phím số"></div>
+  <p class="goi-y">Bản mẫu: PIN 2468. Bản chính thức dùng PIN riêng từng tài xế hoặc vân tay trên điện thoại.</p>
+</div>
+
+<div class="ung-dung" id="ung-dung" hidden>
+  <header class="dau-app">
+    <span id="xe-dang-lai"></span>
+    <div class="che-do" role="group" aria-label="Chế độ hiển thị"><button type="button" data-che-do="sang">Sáng</button><span>/</span><button type="button" data-che-do="toi">Tối</button></div>
+  </header>
+  <main id="noi-dung" tabindex="-1"></main>
+  <nav class="thanh-duoi" aria-label="Chức năng">
+    <button type="button" data-tab="hanh-trinh"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6-5.6-6-11a6 6 0 1 1 12 0c0 5.4-6 11-6 11z" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="10" r="2.2" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>Hành trình</button>
+    <button type="button" data-tab="tuyen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19c4 0 4-6 7-6s3 6 7 6M5 5h.01M19 19h.01" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="5" cy="5" r="2.2" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>Tuyến</button>
+    <button type="button" data-tab="hieu-qua"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Tiêu hao</button>
+    <button type="button" data-tab="su-co"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 20h20L12 3zM12 10v4M12 17h.01" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></svg>Báo sự cố</button>
+  </nav>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="../shared/data.js?v=8"></script>
+<script src="../shared/common.js?v=8"></script>
+<script src="../shared/gpx.js?v=13"></script>
+<script src="hanh-trinh.js?v=13"></script>
+<script src="app.js?v=13"></script>
+</body>
+</html>

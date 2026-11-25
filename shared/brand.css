@@ -1,0 +1,71 @@
+﻿/* Màu đơn giản theo bảng màu đo từ nestle.com.vn: xám than, chữ kem xám, xanh dương làm màu chính, xanh lá làm màu phụ.
+   Không dùng ánh sáng, chuyển màu hay chữ nghiêng trang trí. Cách tổ chức trang theo logic Trung Nguyên Legend (docs/design-system-tnl.md). */
+:root, :root[data-che-do="toi"] {
+  --nen: #242525;            /* xám than */
+  --dai: #1B1C1C;
+  --mat: #2A2C2C;
+  --mat-2: #3A3D3D;
+  --vien: #3A3D3D;
+  --muc: #E5E0D8;            /* chữ chính */
+  --chu: #C6BFB5;
+  --nhat: #A0988A;
+  --nhan: #5EBDE9;           /* điểm nhấn trên nền tối */
+  --nhan-2: #5EBDE9;
+  --nut-nen: #17668C; --nut-chu: #FFFFFF;
+  --lien-ket: #5EBDE9; --lien-ket-hover: #9AD6F2;
+  --xanh: #6FB35F; --vang: #E0B24C; --do: #E2675A; --tro: #8F8475;
+  --den-roi: rgba(94, 189, 233, .08);
+  --o-ban-do: grayscale(1) invert(1) brightness(.72) contrast(1.05);
+}
+:root[data-che-do="sang"] {
+  --nen: #FFFFFF; --dai: #F4F2EF; --mat: #F7F6F4; --mat-2: #ECE9E4; --vien: #E2DDD6;
+  --muc: #30261D; --chu: #63513D; --nhat: #8F8475; --nhan: #17668C; --nhan-2: #17668C;
+  --nut-nen: #17668C; --nut-chu: #FFFFFF; --lien-ket: #17668C; --lien-ket-hover: #0F4A66;
+  --xanh: #34682B; --vang: #B7861E; --do: #C0392B; --tro: #B5AEA2;
+  --den-roi: rgba(23, 102, 140, .06);
+  --o-ban-do: grayscale(1) contrast(1.02) brightness(1.03);
+}
+:root {
+  --serif: "Plus Jakarta Sans", system-ui, sans-serif;   /* chữ nội dung; tên biến giữ nguyên cho các file đã dùng */
+  --tieu-de: "Playfair Display", Georgia, serif;          /* chữ tiêu đề và số lớn */
+  --nghieng: var(--serif);
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--nen); color: var(--chu); font: 400 15px/1.7 var(--serif); }
+a { color: var(--lien-ket); text-decoration: none; }
+a:hover { color: var(--lien-ket-hover); text-decoration: underline; }
+:focus-visible { outline: 2px solid var(--nhan); outline-offset: 3px; }
+.so { font-variant-numeric: tabular-nums lining-nums; }
+h1, h2, h3 { color: var(--muc); font-weight: 300; }
+/* Tiêu đề và số lớn: chữ thẳng, nét mảnh như tiêu đề trang Nestlé */
+.tieu-de-lon, .tieu-de-muc, .tieu-de-nho, .dong h3, .ba-so b, .thanh b, .buoc b, .buoc h3, .chuong b, .chuong .so-chuong,
+.loi-dan blockquote, td b, .chan b, .bieu-tuong em, .dai-den, .dau-app, .lon b, .tieu-de-lon span, .pin-dau h1, .vung h2, .ten-man h1 {
+  font-family: var(--tieu-de) !important; font-style: normal !important; font-weight: 500 !important; letter-spacing: -.005em !important; }
+.pin-dau p, .vung .dan { font-family: var(--serif) !important; font-style: normal !important; }
+.nut { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 18px; background: transparent; color: var(--muc);
+  border: 1px solid var(--vien); border-radius: 4px; font: 600 13px/1 var(--serif); cursor: pointer; text-transform: none; letter-spacing: 0; }
+.nut:hover { border-color: var(--nhan); color: var(--nhan); text-decoration: none; }
+.nut.dac { background: var(--nut-nen); color: var(--nut-chu); border-color: var(--nut-nen); }
+.nut.dac:hover { filter: brightness(1.12); color: var(--nut-chu); }
+.cham { display: inline-block; width: 9px; height: 9px; border-radius: 50%; vertical-align: middle; }
+.cham.xanh { background: var(--xanh); } .cham.vang { background: var(--vang); } .cham.do { background: var(--do); } .cham.chua { background: var(--tro); }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+/* Bản theo thiết kế Canva của Công ty (11/2026): nền trắng, xanh đen #09183C, xanh dương #0563D4. Mặc định sáng; chế độ tối giữ bảng màu kiểu Nestlé. */
+:root[data-che-do="sang"] {
+  --nen: #FFFFFF; --dai: #0A2A66; --mat: #F3F7FD; --mat-2: #E6EEF9; --vien: #DFE7F2;
+  --muc: #09183C; --chu: #3A4660; --nhat: #7A869E; --nhan: #0563D4; --nhan-2: #06368D;
+  --nut-nen: #0563D4; --nut-chu: #FFFFFF; --lien-ket: #0563D4; --lien-ket-hover: #06368D;
+  --xanh: #2E8B57; --vang: #D39B1F; --do: #D64541; --tro: #A9B3C4;
+  --den-roi: rgba(5, 99, 212, .06); --kem: #FBF5EA;
+  --o-ban-do: grayscale(.35) saturate(.8) brightness(1.03);
+}
+:root { --serif: "Montserrat", system-ui, sans-serif; --tieu-de: "Playfair Display", "Times New Roman", serif; --dam: "Oswald", "Arial Narrow", sans-serif; }
+/* Một phông duy nhất cho toàn hệ thống: Be Vietnam Pro, thiết kế riêng cho tiếng Việt, dấu đặt chuẩn (11/2026) */
+:root { --serif: "Be Vietnam Pro", system-ui, sans-serif; --tieu-de: "Be Vietnam Pro", system-ui, sans-serif; --dam: "Be Vietnam Pro", system-ui, sans-serif; --nghieng: "Be Vietnam Pro", system-ui, sans-serif; }
+body { font-family: var(--serif); }
+.tieu-de-lon, .tieu-de-muc, .tieu-de-nho, .dong h3, .ba-so b, .thanh b, .buoc b, .buoc h3, .chuong b, .chuong .so-chuong,
+.loi-dan blockquote, td b, .chan b, .bieu-tuong em, .dai-den, .dau-app, .lon b, .tieu-de-lon span, .pin-dau h1, .vung h2, .ten-man h1 {
+  font-family: var(--serif) !important; font-style: normal !important; font-weight: 700 !important; letter-spacing: -.015em !important; }

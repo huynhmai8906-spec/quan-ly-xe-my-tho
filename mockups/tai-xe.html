@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://*.tile.openstreetmap.org https://cdnjs.cloudflare.com; connect-src 'self'">
+<title>Smart Fleet Mỹ Tho, tài xế</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&family=Cormorant+SC:wght@500;600&display=swap&subset=vietnamese">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="tai-xe.css">
+</head>
+<body class="nen-xam">
+<header class="dau">
+  <span></span>
+  <a class="bieu-tuong" href="index.html"><b>Smart Fleet Mỹ Tho</b><small>Ứng dụng cho tài xế, xem trên điện thoại</small></a>
+  <nav class="vai-tro" aria-label="Chọn vai trò"><a href="index.html">Quản lý</a><a href="tai-xe.html" aria-current="page">Tài xế</a></nav>
+</header>
+
+<div class="dien-thoai" role="region" aria-label="Màn hình ứng dụng tài xế">
+  <div class="thanh-trang-thai"><span class="so" id="gio">6:30</span><span aria-hidden="true">▮▮▮ ◔</span></div>
+  <div class="vung-ban-do">
+    <div id="ban-do-tx"></div>
+    <button class="nut-tron trai" aria-label="Quay lại">←</button>
+    <h1 class="tieu-de-tx">Tuyến hôm nay</h1>
+    <button class="nut-tron phai" aria-label="Báo sự cố">!</button>
+  </div>
+  <section class="noi-dung-tx">
+    <h2 id="xe-tx"></h2>
+    <div class="trong" id="tuyen-trong">
+      <p><b>Chưa có tuyến được giao.</b> Khi Phòng Kế hoạch Kinh doanh lập tuyến, các điểm thu gom sẽ hiện ở đây theo thứ tự chạy.</p>
+    </div>
+    <h3 class="tieu-de-nho">Tiêu hao của xe theo tuần</h3>
+    <div id="tuan-tx"></div>
+    <button class="mo-rong" id="mo-rong-tx" aria-expanded="false">Mở rộng</button>
+    <p class="nho">Chỉ số 1,00 là đúng mức thường ngày của chính xe này. Chỉ bạn và người phụ trách đội xem được; không xếp hạng giữa các tài xế.</p>
+  </section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="data.js"></script>
+<script src="common.js"></script>
+<script src="tai-xe.js"></script>
+</body>
+</html>
