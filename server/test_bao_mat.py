@@ -116,3 +116,14 @@ def test_header_bao_mat(c):
     assert r.headers['x-frame-options'] == 'DENY' and r.headers['x-content-type-options'] == 'nosniff'
     dn(c, 'ql1', MK_QL)
     assert c.get('/api/du-lieu').headers['cache-control'] == 'no-store'
+
+
+def test_nap_tai_khoan_chi_nhan_mat_khau_da_bam(tmp_path, c):
+    import server.app as a
+    from argon2 import PasswordHasher
+    p = tmp_path / 'tk.json'
+    p.write_text(json.dumps([{'ten': 'moi', 'mat_khau_bam': PasswordHasher().hash('mat-khau-moi-123'), 'vai_tro': 'quan-ly'},
+                             {'ten': 'chu-thuong', 'mat_khau_bam': 'mat-khau-chu-thuong', 'vai_tro': 'quan-ly'}]), encoding='utf-8')
+    a.nap_tai_khoan(str(p))
+    assert dn(c, 'moi', 'mat-khau-moi-123').status_code == 200
+    assert dn(c, 'chu-thuong', 'mat-khau-chu-thuong').status_code == 401

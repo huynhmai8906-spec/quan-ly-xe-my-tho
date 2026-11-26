@@ -21,7 +21,9 @@ from pydantic import BaseModel, Field
 from . import csdl
 
 GOC = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-TEP_SO_LIEU = os.path.join(csdl.THU_MUC, 'fleet.json')
+# Trên Render, số liệu và danh sách tài khoản (chỉ có mật khẩu đã băm) là Secret File ở /etc/secrets
+TEP_SO_LIEU = os.environ.get('SF_SO_LIEU', os.path.join(csdl.THU_MUC, 'fleet.json'))
+TEP_TAI_KHOAN = os.environ.get('SF_TAI_KHOAN', '')
 HTTPS = os.environ.get('SF_HTTPS', '0') == '1'
 TEN_COOKIE = 'sf_phien'
 THOI_HAN_PHIEN = 8 * 3600            # một ca làm việc
@@ -31,6 +33,26 @@ BAM_GIA = ph.hash(secrets.token_hex(16))   # so mật khẩu với chuỗi giả
 
 app = FastAPI(title='Quản lý xe', docs_url=None, redoc_url=None, openapi_url=None)
 csdl.khoi_tao()
+
+
+def nap_tai_khoan(duong_dan: str):
+    """Nạp tài khoản từ tệp JSON [{ten, mat_khau_bam, vai_tro, xe_ma}] khi khởi động.
+    Ổ đĩa của gói miễn phí bị xóa mỗi lần khởi động lại, nên tài khoản phải nạp lại từ tệp bí mật."""
+    if not duong_dan or not os.path.isfile(duong_dan):
+        return 0
+    with open(duong_dan, encoding='utf-8') as f:
+        ds = json.load(f)
+    with csdl.ket_noi() as c:
+        for t in ds:
+            if t.get('vai_tro') not in ('quan-ly', 'tai-xe') or not str(t.get('mat_khau_bam', '')).startswith('$argon2'):
+                continue    # bỏ qua dòng sai, không bao giờ nhận mật khẩu dạng chữ thường
+            c.execute('INSERT INTO tai_khoan (ten, mat_khau_bam, vai_tro, xe_ma, tao_luc) VALUES (?, ?, ?, ?, ?) '
+                      'ON CONFLICT(ten) DO UPDATE SET mat_khau_bam = excluded.mat_khau_bam, vai_tro = excluded.vai_tro, xe_ma = excluded.xe_ma',
+                      (str(t['ten']).strip().lower(), t['mat_khau_bam'], t['vai_tro'], t.get('xe_ma'), time.time()))
+    return len(ds)
+
+
+nap_tai_khoan(TEP_TAI_KHOAN)
 
 CSP = ("default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; "
        "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; "

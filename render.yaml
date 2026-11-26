@@ -1,0 +1,23 @@
+# Cấu hình Render (Blueprint) cho backend Quản lý xe.
+# Hai Secret File phải tải lên tay trong trang Environment của dịch vụ (không nằm trong kho):
+#   fleet.json      số liệu thật, sinh bằng tools/xuat_du_lieu.py
+#   tai-khoan.json  danh sách tài khoản, mật khẩu đã băm, sinh bằng python -m server.xuat_tai_khoan
+services:
+  - type: web
+    name: quan-ly-xe-my-tho
+    runtime: python
+    plan: free
+    region: singapore
+    buildCommand: pip install -r server/requirements.txt
+    # --proxy-headers: Render chạy sau proxy HTTPS; cần để máy chủ biết yêu cầu đến qua https (kiểm tra Origin, cookie Secure)
+    startCommand: uvicorn server.app:app --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips="*"
+    healthCheckPath: /web/index.html
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.10
+      - key: SF_HTTPS
+        value: "1"
+      - key: SF_SO_LIEU
+        value: /etc/secrets/fleet.json
+      - key: SF_TAI_KHOAN
+        value: /etc/secrets/tai-khoan.json

@@ -24,6 +24,15 @@ server/.venv/Scripts/python -m uvicorn server.app:app --port 8770
 
 Rồi vào `http://localhost:8770/`. Khi chạy thật qua HTTPS, đặt biến môi trường `SF_HTTPS=1` để cookie phiên có cờ Secure. Kiểm thử bảo mật: `server/.venv/Scripts/python -m pytest server -q`.
 
+## Chạy trên Render
+
+`render.yaml` mô tả dịch vụ. Trong trang Environment của dịch vụ, thêm hai Secret File (không đưa lên kho):
+
+- `fleet.json`: số liệu thật, sinh bằng `tools/xuat_du_lieu.py`.
+- `tai-khoan.json`: danh sách tài khoản, chỉ có mật khẩu đã băm; tạo tài khoản bằng `server.tao_tai_khoan` rồi xuất bằng `python -m server.xuat_tai_khoan`.
+
+Gói miễn phí xóa ổ đĩa mỗi lần khởi động lại: tài khoản được nạp lại từ `tai-khoan.json`, nhưng kết luận cảnh báo, lịch xe và sự cố ghi trong SQLite sẽ mất. Dùng thật cần gói có ổ đĩa lưu trữ hoặc PostgreSQL.
+
 ## Bảo mật
 
 - Đăng nhập kiểm tra ở máy chủ; mật khẩu băm argon2; sai 5 lần khóa 15 phút; phiên 8 giờ trong cookie HttpOnly, SameSite=Strict.
