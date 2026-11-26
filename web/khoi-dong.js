@@ -10,7 +10,7 @@
       window.FLEET = d; window.KET_LUAN = kl; window.DAT_XE = dx;
     }
   } catch (e) { window.LOI_KET_NOI = e.trangThai === 401 ? null : e.message; window.KHONG_MAY_CHU = !!e.khongMayChu; }
-  for (const src of ['bai-xe.js?v=7', 'web.js?v=27']) {
+  for (const src of ['bai-xe.js?v=8', 'web.js?v=27']) {
     await new Promise((ok, loi) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = loi; document.body.append(s); });
   }
 })();

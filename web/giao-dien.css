@@ -256,3 +256,4 @@ details.ket-luan textarea { width: 100%; min-height: 70px; margin: 12px 0; paddi
 .tk-xem-thu.tk-app .tk-tieu-de { color: #1D6B40; }
 .tk-xem-thu.tk-app .nut { border-color: #2E8B57; color: #1D6B40; }
 .tk-xem-thu a.nut { display: flex; text-decoration: none; }
+.bx-to-mau { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0 0 16px; font-weight: 600; color: var(--muc); }

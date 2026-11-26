@@ -11,6 +11,7 @@ window.veBaiXe = function (trang) {
       e0('p', { class: 'bx-dan', text: 'Mỗi ô trên sơ đồ là một chỗ đậu. Màu cho biết tình trạng của xe tính từ dữ liệu cảm biến tháng 7/2026; bấm vào một xe để xem chi tiết.' }),
       e0('div', { class: 'bx-so', id: 'bx-so' }))),
     muc('muc-den', 'Sơ đồ', 'Bãi đậu', 'nhìn từ trên xuống',
+      e0('div', { class: 'bx-to-mau' }, e0('span', { text: 'Tô màu theo:' }), e0('div', { class: 'chon', role: 'group', 'aria-label': 'Tô màu sơ đồ theo', id: 'to-mau' })),
       e0('div', { class: 'bx-so-do' },
         e0('div', { class: 'bx-khung-svg' }, (() => { const v = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); v.id = 'so-do'; v.setAttribute('role', 'group'); v.setAttribute('aria-label', 'Sơ đồ bãi đậu 48 chỗ'); return v; })()),
         e0('aside', { class: 'bx-chi-tiet', id: 'chi-tiet', 'aria-live': 'polite' }, e0('p', { class: 'bx-goi-y', text: 'Bấm vào một xe trên sơ đồ hoặc trong danh sách bên dưới để xem chi tiết.' }))),
@@ -87,7 +88,21 @@ window.veBaiXe = function (trang) {
     }
     svg.append(g);
   });
-  $('chu-giai').replaceChildren(...['xanh', 'vang', 'do', 'chua'].map(k => el('span', {}, el('i', { style: `background:${MAU[k]}` }), `${TRANG_THAI[k]}, ${dem[k]} xe`)));
+  // Tô màu sơ đồ theo tình trạng, hoặc theo nhóm định mức do K-means chia (12 xe ép rác có cảm biến, Giải pháp 3)
+  const MAU_CUM = { 'Xe nhỏ': '#2E86DE', 'Xe lớn, tuyến thường': '#8E44AD', 'Xe lớn, tuyến dài': '#F07C1E' };
+  const DEM_CUM = {}; XE.forEach(x => { if (x.cum) DEM_CUM[x.cum] = (DEM_CUM[x.cum] || 0) + 1; });
+  let cheDoMau = 'tinh-trang';
+  const mauXe = x => cheDoMau === 'cum' ? (MAU_CUM[x.cum] || '#D5DBE5') : MAU[x.trang_thai];
+  function toMau() {
+    nhomCho.forEach(([g, x]) => g.querySelector('.xe-than').style.fill = mauXe(x));
+    $('chu-giai').replaceChildren(...(cheDoMau === 'cum'
+      ? [...Object.keys(MAU_CUM).map(k => el('span', {}, el('i', { style: `background:${MAU_CUM[k]}` }), `${k}, ${DEM_CUM[k] || 0} xe`)),
+         el('span', {}, el('i', { style: 'background:#D5DBE5' }), `Không phân cụm, ${XE.length - Object.values(DEM_CUM).reduce((a, b) => a + b, 0)} xe`)]
+      : ['xanh', 'vang', 'do', 'chua'].map(k => el('span', {}, el('i', { style: `background:${MAU[k]}` }), `${TRANG_THAI[k]}, ${dem[k]} xe`))));
+  }
+  $('to-mau').replaceChildren(...[['tinh-trang', 'Tình trạng'], ['cum', 'Nhóm định mức (K-means)']].map(([v, t]) => el('button', { class: 'chip', type: 'button', 'aria-pressed': String(v === cheDoMau),
+    onclick: (e) => { cheDoMau = v; $('to-mau').querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', String(c === e.currentTarget))); toMau(); } }, t)));
+  toMau();
 
   // ---------- Chi tiết xe
   function chonXe(x, cuon) {
@@ -96,6 +111,7 @@ window.veBaiXe = function (trang) {
     const dong = [['Đội', x.doi], ['Năm sử dụng', `${x.nam}, ${x.tuoi} năm`], ['Nguyên giá', so(x.nguyen_gia, 0) + ' triệu'], ['Giá trị còn lại', so(x.gtcl, 0) + ' triệu']];
     if (x.cam_bien) dong.push(['Ngày hoạt động tháng 7', `${x.ngay_hd}/31`], ['Quãng đường', so(x.km, 0) + ' km'], ['Dầu tiêu thụ', so(x.lit, 0) + ' lít'],
       ['Tiêu hao', x.tieu_hao ? `${so(x.tieu_hao, 2)} ${x.don_vi}` : '–'], ['Chỉ số tuần cao nhất', x.chi_so_tuan.length ? so(Math.max(...x.chi_so_tuan), 2) : '–'], ['Ngày khác thường', String(x.ngay_if)]);
+    if (x.cum) dong.push(['Nhóm định mức (K-means)', x.cum], ['So với bình quân nhóm', `${x.lech_cum >= 0 ? '+' : ''}${so(x.lech_cum * 100, 1)}%`]);
     $('chi-tiet').replaceChildren(el('span', { class: 'the-tt ' + x.trang_thai, text: TRANG_THAI[x.trang_thai] }), el('h3', { text: ten(x) }), el('p', { class: 'loai', text: x.ten }),
       el('dl', {}, ...dong.flatMap(([k, v]) => [el('dt', { text: k }), el('dd', { text: v })])));
     if (cuon) $('chi-tiet').scrollIntoView({ block: 'nearest', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
