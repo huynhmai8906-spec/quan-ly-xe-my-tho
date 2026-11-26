@@ -1,0 +1,12 @@
+# Khong bao gio tai len Vercel khi trien khai tu may
+server/du_lieu/
+server/.venv/
+.env
+.env.*
+.vercel/
+.claude/
+mockups/data.js
+shared/data.js
+public/
+.pytest_cache/
+**/__pycache__/
