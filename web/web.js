@@ -443,12 +443,20 @@
             el('button', { class: 'nut dac', type: 'button', onclick: async () => { try { await API.dangXuat(); } finally { location.reload(); } } }, 'Đăng xuất để đổi tài khoản'))
         : el('div', {},
             // Ô tài khoản xem thử: chữ to, có nút điền sẵn, để thầy cô đăng nhập ngay
-            el('div', { class: 'tk-xem-thu', role: 'note', 'aria-label': 'Tài khoản xem thử dành cho thầy cô' },
-              el('p', { class: 'tk-tieu-de', text: 'Tài khoản xem thử dành cho thầy cô' }),
-              el('dl', {}, el('dt', { text: 'Tên đăng nhập' }), el('dd', { text: API.XEM_THU.web.ten }),
-                el('dt', { text: 'Mật khẩu' }), el('dd', { text: API.XEM_THU.web.mat_khau })),
-              el('button', { class: 'nut', type: 'button', onclick: () => { ten.value = API.XEM_THU.web.ten; mk.value = API.XEM_THU.web.mat_khau; nut.focus(); } }, 'Điền sẵn tài khoản xem thử'),
-              el('small', { text: 'Tài khoản này chỉ xem được 6 mục, không lưu kết luận hay đặt lịch xe.' })),
+            el('p', { class: 'tk-dan', text: 'Tài khoản xem thử dành cho thầy cô' }),
+            el('div', { class: 'tk-hai-o' },
+              el('div', { class: 'tk-xem-thu', role: 'note', 'aria-label': 'Tài khoản xem thử web quản lý' },
+                el('p', { class: 'tk-tieu-de', text: '1. Web quản lý' }),
+                el('dl', {}, el('dt', { text: 'Tên đăng nhập' }), el('dd', { text: API.XEM_THU.web.ten }),
+                  el('dt', { text: 'Mật khẩu' }), el('dd', { text: API.XEM_THU.web.mat_khau })),
+                el('button', { class: 'nut', type: 'button', onclick: () => { ten.value = API.XEM_THU.web.ten; mk.value = API.XEM_THU.web.mat_khau; nut.focus(); } }, 'Điền sẵn vào ô bên dưới'),
+                el('small', { text: 'Xem 6 mục Tổng quan đến Báo cáo; chỉ xem, không lưu thay đổi.' })),
+              el('div', { class: 'tk-xem-thu tk-app', role: 'note', 'aria-label': 'Tài khoản xem thử app tài xế' },
+                el('p', { class: 'tk-tieu-de', text: '2. App tài xế' }),
+                el('dl', {}, el('dt', { text: 'Tên đăng nhập' }), el('dd', { text: API.XEM_THU.app.ten }),
+                  el('dt', { text: 'Mã PIN' }), el('dd', { text: API.XEM_THU.app.mat_khau })),
+                el('a', { class: 'nut', href: '../app/index.html' }, 'Mở app tài xế'),
+                el('small', { text: 'Đăng nhập trong app, không dùng ô bên dưới. App hiện xe 63C-171.96.' }))),
             el('label', { for: 'dn-ten', text: 'Tên đăng nhập' }), ten, el('label', { for: 'dn-mk', text: 'Mật khẩu' }), mk, loi, nut),
       el('p', { class: 'ghi', text: 'Nhập sai 5 lần liên tiếp thì tài khoản tạm khóa 15 phút. Phiên đăng nhập hết hạn sau 8 giờ.' }));
     trang.append(el('section', { class: 'muc muc-den' }, el('div', { class: 'khung-rong' }, form)));

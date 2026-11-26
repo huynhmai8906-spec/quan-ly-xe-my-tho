@@ -247,3 +247,12 @@ details.ket-luan textarea { width: 100%; min-height: 70px; margin: 12px 0; paddi
 .tk-xem-thu dd { margin: 0; font: 800 24px/1.2 ui-monospace, Consolas, "Courier New", monospace; color: #1A1200; letter-spacing: .02em; user-select: all; overflow-wrap: anywhere; }
 .tk-xem-thu .nut { width: 100%; justify-content: center; background: #fff; border-color: #E0A100; color: #6B4A00; }
 .tk-xem-thu small { display: block; margin-top: 10px; font-size: 13px; }
+
+/* Hai ô tài khoản xem thử: web quản lý và app tài xế */
+.tk-dan { margin: 4px 0 10px; font-size: 18px; font-weight: 800; color: var(--muc); }
+.tk-hai-o { display: grid; gap: 14px; margin-bottom: 20px; }
+.tk-hai-o .tk-xem-thu { margin: 0; }
+.tk-xem-thu.tk-app { border-color: #2E8B57; background: #E8F6EE; color: #0F3D24; }
+.tk-xem-thu.tk-app .tk-tieu-de { color: #1D6B40; }
+.tk-xem-thu.tk-app .nut { border-color: #2E8B57; color: #1D6B40; }
+.tk-xem-thu a.nut { display: flex; text-decoration: none; }
