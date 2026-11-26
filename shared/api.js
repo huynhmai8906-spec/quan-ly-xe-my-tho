@@ -15,6 +15,8 @@ window.API = (function () {
     return d;
   }
   return {
+    // Tài khoản xem thử công khai cho giáo viên; máy chủ chỉ cho xem, không cho lưu (SF_TAI_KHOAN_CONG_KHAI)
+    XEM_THU: { web: { ten: 'giaovien', mat_khau: 'XemDeAn@2026' }, app: { ten: 'taixe-demo', mat_khau: '123456' } },
     // Trang đang mở ở nơi không có backend: nói rõ nơi đăng nhập được
     thongBaoKhongMayChu: () => location.hostname.endsWith('github.io')
       ? 'Bản trên GitHub Pages chỉ là trang tĩnh, không có máy chủ nên không đăng nhập được. Đăng nhập tại https://quan-ly-xe-my-tho.vercel.app'

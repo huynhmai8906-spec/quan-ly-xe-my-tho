@@ -162,3 +162,23 @@ def test_doi_mat_khau_lam_mat_phien_cu(c):
     import server.tao_tai_khoan as tk
     tk.tao('ql1', 'quan-ly', None, 'mat-khau-moi-' + os.urandom(4).hex())
     assert c.get('/api/du-lieu').status_code == 401
+
+
+def test_tai_khoan_xem_thu_chi_xem_va_khong_bi_khoa(c):
+    import server.tao_tai_khoan as tk
+    tk.tao('giaovien', 'quan-ly', None, 'XemDeAn@2026')
+    for _ in range(8):
+        assert dn(c, 'giaovien', 'sai').status_code == 401              # nhập sai nhiều lần vẫn không khóa
+    r = dn(c, 'giaovien', 'XemDeAn@2026')
+    assert r.status_code == 200 and r.json()['chi_xem'] is True
+    assert len(c.get('/api/du-lieu').json()['xe']) == 42                # xem được số liệu
+    assert c.get('/api/ket-luan').status_code == 200
+    assert c.put('/api/ket-luan/X01', json={'ly_do': 'Lỗi thiết bị', 'ghi': ''}, headers=H).status_code == 403
+    xe = c.get('/api/du-lieu').json()['xe'][0]['ma']
+    assert c.post('/api/dat-xe', json={'xe': xe, 'doi': 'Công viên cây xanh', 'ngay': 'Thứ hai', 'gio': 'Cả ngày'}, headers=H).status_code == 403
+
+
+def test_tai_khoan_thuong_van_bi_khoa(c):
+    for _ in range(5):
+        dn(c, 'ql1', 'sai')
+    assert dn(c, 'ql1', MK_QL).status_code == 429

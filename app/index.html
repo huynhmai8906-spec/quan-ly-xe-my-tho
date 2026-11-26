@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&display=swap&subset=vietnamese">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <link rel="stylesheet" href="../shared/brand.css?v=8">
-<link rel="stylesheet" href="app.css?v=14">
+<link rel="stylesheet" href="app.css?v=15">
 <script src="../shared/che-do.js?v=8"></script>
 </head>
 <body>
@@ -30,6 +30,11 @@
     <p class="loi-pin" id="loi-pin" role="alert"></p>
     <button class="nut dac" type="submit">Bắt đầu ca làm việc</button>
   </form>
+  <div class="tk-xem-thu" role="note" aria-label="Tài khoản xem thử dành cho thầy cô">
+    <p class="tk-tieu-de">Tài khoản xem thử dành cho thầy cô</p>
+    <dl><dt>Tên đăng nhập</dt><dd id="xt-ten"></dd><dt>Mã PIN</dt><dd id="xt-mk"></dd></dl>
+    <button type="button" class="nut" id="dien-thu">Điền sẵn tài khoản xem thử</button>
+  </div>
   <p class="goi-y">Mỗi tài xế có tài khoản và mã PIN riêng do người phụ trách đội cấp. Nhập sai 5 lần thì tài khoản tạm khóa 15 phút.</p>
 </div>
 
@@ -51,8 +56,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="../shared/common.js?v=16"></script>
 <script src="../shared/gpx.js?v=13"></script>
-<script src="../shared/api.js?v=3"></script>
+<script src="../shared/api.js?v=4"></script>
 <script src="hanh-trinh.js?v=13"></script>
-<script src="app.js?v=15"></script>
+<script src="app.js?v=16"></script>
 </body>
 </html>

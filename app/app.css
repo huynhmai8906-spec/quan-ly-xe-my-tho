@@ -99,3 +99,12 @@ body { min-height: 100dvh; }
 .dang-nhap-app .nut { margin-top: 14px; min-height: 52px; justify-content: center; font-size: 16px; }
 .thoat-app { background: none; border: 1px solid currentColor; border-radius: 999px; padding: 4px 12px; color: inherit; font: inherit; font-size: 13px; cursor: pointer; }
 .dau-app { gap: 12px; } .dau-app #xe-dang-lai { margin-right: auto; }
+
+/* Ô tài khoản xem thử cho thầy cô: chữ to, nền vàng nhạt, viền rõ */
+.tk-xem-thu { margin: 4px 0 20px; padding: 18px 20px; border: 2px solid #E0A100; border-radius: 16px; background: #FFF6D6; color: #3A2A00; text-align: left; }
+.tk-xem-thu .tk-tieu-de { margin: 0 0 10px; font-size: 18px; font-weight: 800; color: #6B4A00; }
+.tk-xem-thu dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; margin: 0 0 14px; align-items: baseline; }
+.tk-xem-thu dt { font-size: 15px; font-weight: 600; }
+.tk-xem-thu dd { margin: 0; font: 800 24px/1.2 ui-monospace, Consolas, "Courier New", monospace; color: #1A1200; letter-spacing: .02em; user-select: all; overflow-wrap: anywhere; }
+.tk-xem-thu .nut { width: 100%; justify-content: center; background: #fff; border-color: #E0A100; color: #6B4A00; }
+.tk-xem-thu small { display: block; margin-top: 10px; font-size: 13px; }

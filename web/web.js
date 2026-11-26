@@ -441,7 +441,15 @@
         : n && n.vai_tro !== 'quan-ly'
         ? el('div', {}, el('p', { class: 'loi-dn', text: `Bạn đang đăng nhập bằng tài khoản tài xế ${n.ten}. Tài khoản này chỉ dùng app tài xế; đăng xuất để đăng nhập bằng tài khoản quản lý.` }),
             el('button', { class: 'nut dac', type: 'button', onclick: async () => { try { await API.dangXuat(); } finally { location.reload(); } } }, 'Đăng xuất để đổi tài khoản'))
-        : el('div', {}, el('label', { for: 'dn-ten', text: 'Tên đăng nhập' }), ten, el('label', { for: 'dn-mk', text: 'Mật khẩu' }), mk, loi, nut),
+        : el('div', {},
+            // Ô tài khoản xem thử: chữ to, có nút điền sẵn, để thầy cô đăng nhập ngay
+            el('div', { class: 'tk-xem-thu', role: 'note', 'aria-label': 'Tài khoản xem thử dành cho thầy cô' },
+              el('p', { class: 'tk-tieu-de', text: 'Tài khoản xem thử dành cho thầy cô' }),
+              el('dl', {}, el('dt', { text: 'Tên đăng nhập' }), el('dd', { text: API.XEM_THU.web.ten }),
+                el('dt', { text: 'Mật khẩu' }), el('dd', { text: API.XEM_THU.web.mat_khau })),
+              el('button', { class: 'nut', type: 'button', onclick: () => { ten.value = API.XEM_THU.web.ten; mk.value = API.XEM_THU.web.mat_khau; nut.focus(); } }, 'Điền sẵn tài khoản xem thử'),
+              el('small', { text: 'Tài khoản này chỉ xem được 6 mục, không lưu kết luận hay đặt lịch xe.' })),
+            el('label', { for: 'dn-ten', text: 'Tên đăng nhập' }), ten, el('label', { for: 'dn-mk', text: 'Mật khẩu' }), mk, loi, nut),
       el('p', { class: 'ghi', text: 'Nhập sai 5 lần liên tiếp thì tài khoản tạm khóa 15 phút. Phiên đăng nhập hết hạn sau 8 giờ.' }));
     trang.append(el('section', { class: 'muc muc-den' }, el('div', { class: 'khung-rong' }, form)));
     if (!n) setTimeout(() => ten.focus(), 50);
@@ -449,7 +457,7 @@
   // Tên người đang đăng nhập và nút đăng xuất trên thanh thông báo
   if (window.NGUOI_DUNG) {
     const o = document.querySelector('.tb-phai');
-    if (o) o.prepend(el('span', { class: 'tb-nguoi', text: window.NGUOI_DUNG.ten }),
+    if (o) o.prepend(el('span', { class: 'tb-nguoi', text: window.NGUOI_DUNG.ten + (window.NGUOI_DUNG.chi_xem ? ' (chỉ xem)' : '') }),
       el('button', { type: 'button', class: 'tb-thoat', onclick: async () => { try { await API.dangXuat(); } finally { location.hash = 'gioi-thieu'; location.reload(); } } }, 'Đăng xuất'));
   }
 

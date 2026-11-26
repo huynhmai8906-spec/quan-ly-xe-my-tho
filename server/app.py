@@ -39,6 +39,10 @@ HTTPS = os.environ.get('SF_HTTPS', '0') == '1' or bool(os.environ.get('VERCEL'))
 TEN_COOKIE = 'sf_phien'
 THOI_HAN_PHIEN = 8 * 3600            # một ca làm việc
 SAI_TOI_DA, KHOA_GIAY = 5, 15 * 60   # sai 5 lần thì khóa tài khoản 15 phút
+# Tài khoản xem thử có mật khẩu công khai trên màn hình đăng nhập (cho giáo viên chấm đề án):
+#  - chỉ được xem, không lưu kết luận, không đặt xe;
+#  - không bị khóa khi người khác cố nhập sai (mật khẩu đã công khai, khóa chỉ làm giáo viên không vào được).
+CONG_KHAI = {t.strip().lower() for t in os.environ.get('SF_TAI_KHOAN_CONG_KHAI', 'giaovien,taixe-demo').split(',') if t.strip()}
 ph = PasswordHasher()
 BAM_GIA = ph.hash(secrets.token_hex(16))   # so mật khẩu với chuỗi giả khi tài khoản không tồn tại, để thời gian trả lời như nhau
 
@@ -144,6 +148,7 @@ class NguoiDung(BaseModel):
     ten: str
     vai_tro: str
     xe_ma: str | None = None
+    chi_xem: bool = False
 
 
 def nguoi_dung(request: Request) -> NguoiDung:
@@ -156,12 +161,18 @@ def nguoi_dung(request: Request) -> NguoiDung:
         thu_hoi = c.execute('SELECT 1 FROM phien WHERE token_bam = ?', (ma_phien,)).fetchone()
     if not t or thu_hoi or not hmac.compare_digest(dau, _dau_mk(t['mat_khau_bam'])):
         raise HTTPException(401, 'Phiên không còn hiệu lực')
-    return NguoiDung(ten=t['ten'], vai_tro=t['vai_tro'], xe_ma=t['xe_ma'])
+    return NguoiDung(ten=t['ten'], vai_tro=t['vai_tro'], xe_ma=t['xe_ma'], chi_xem=t['ten'] in CONG_KHAI)
 
 
 def quan_ly(n: NguoiDung = Depends(nguoi_dung)) -> NguoiDung:
     if n.vai_tro != 'quan-ly':
         raise HTTPException(403, 'Tài khoản không có quyền này')
+    return n
+
+
+def quan_ly_ghi(n: NguoiDung = Depends(quan_ly)) -> NguoiDung:
+    if n.chi_xem:
+        raise HTTPException(403, 'Tài khoản xem thử chỉ được xem, không lưu thay đổi.')
     return n
 
 
@@ -177,7 +188,7 @@ def dang_nhap(d: DangNhap, request: Request, response: Response):
     loi = None
     with csdl.ket_noi() as c:
         t = c.execute('SELECT * FROM tai_khoan WHERE ten = ?', (ten,)).fetchone()
-        if t and t['khoa_den'] > now:
+        if t and t['khoa_den'] > now and ten not in CONG_KHAI:
             csdl.ghi_nhat_ky(c, ten, 'dang-nhap-bi-khoa', ip=_ip(request))
             loi = HTTPException(429, f'Tài khoản đang tạm khóa do nhập sai nhiều lần. Thử lại sau {int((t["khoa_den"] - now) // 60) + 1} phút.')
         else:
@@ -187,7 +198,7 @@ def dang_nhap(d: DangNhap, request: Request, response: Response):
             except (VerificationError, InvalidHashError):
                 dung = False
             if not dung:
-                if t:
+                if t and ten not in CONG_KHAI:
                     sai = t['sai_lien_tiep'] + 1
                     c.execute('UPDATE tai_khoan SET sai_lien_tiep = ?, khoa_den = ? WHERE ten = ?',
                               (0 if sai >= SAI_TOI_DA else sai, now + KHOA_GIAY if sai >= SAI_TOI_DA else 0, ten))
@@ -203,7 +214,7 @@ def dang_nhap(d: DangNhap, request: Request, response: Response):
         token = tao_token(ten, t['mat_khau_bam'], now + THOI_HAN_PHIEN)
         csdl.ghi_nhat_ky(c, ten, 'dang-nhap', ip=_ip(request))
     response.set_cookie(TEN_COOKIE, token, max_age=THOI_HAN_PHIEN, httponly=True, secure=HTTPS, samesite='strict', path='/')
-    return {'ten': ten, 'vai_tro': t['vai_tro'], 'xe_ma': t['xe_ma']}
+    return {'ten': ten, 'vai_tro': t['vai_tro'], 'xe_ma': t['xe_ma'], 'chi_xem': ten in CONG_KHAI}
 
 
 @app.post('/api/dang-xuat')
@@ -269,7 +280,7 @@ def ds_ket_luan(n: NguoiDung = Depends(quan_ly)):
 
 
 @app.put('/api/ket-luan/{xe_ma}')
-def luu_ket_luan(xe_ma: str, k: KetLuan, request: Request, n: NguoiDung = Depends(quan_ly)):
+def luu_ket_luan(xe_ma: str, k: KetLuan, request: Request, n: NguoiDung = Depends(quan_ly_ghi)):
     if k.ly_do not in LY_DO or not _xe_hop_le(xe_ma):
         raise HTTPException(422, 'Dữ liệu không hợp lệ')
     now = time.time()
@@ -302,7 +313,7 @@ def ds_dat_xe(n: NguoiDung = Depends(quan_ly)):
 
 
 @app.post('/api/dat-xe')
-def dat_xe(d: DatXe, request: Request, n: NguoiDung = Depends(quan_ly)):
+def dat_xe(d: DatXe, request: Request, n: NguoiDung = Depends(quan_ly_ghi)):
     if d.ngay not in NGAY or d.gio not in BUOI or d.doi not in DOI or not _xe_hop_le(d.xe):
         raise HTTPException(422, 'Dữ liệu không hợp lệ')
     with csdl.ket_noi() as c:

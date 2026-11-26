@@ -18,6 +18,9 @@
     catch (l) { loi.textContent = l.message; form.elements.password.value = ''; form.elements.password.focus(); }
     finally { nut.disabled = false; }
   });
+  // Tài khoản xem thử hiện sẵn trên màn hình đăng nhập
+  document.getElementById('xt-ten').textContent = API.XEM_THU.app.ten; document.getElementById('xt-mk').textContent = API.XEM_THU.app.mat_khau;
+  document.getElementById('dien-thu').addEventListener('click', () => { form.elements.username.value = API.XEM_THU.app.ten; form.elements.password.value = API.XEM_THU.app.mat_khau; form.querySelector('button[type=submit]').focus(); });
   document.getElementById('thoat').addEventListener('click', async () => { try { await API.dangXuat(); } finally { location.reload(); } });
   (async () => { try { await kiemTra(await API.toi()); } catch (l) { if (l.trangThai !== 401) loi.textContent = l.message; } })();
 
