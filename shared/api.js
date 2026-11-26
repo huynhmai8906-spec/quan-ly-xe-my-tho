@@ -17,7 +17,7 @@ window.API = (function () {
   return {
     // Trang đang mở ở nơi không có backend: nói rõ nơi đăng nhập được
     thongBaoKhongMayChu: () => location.hostname.endsWith('github.io')
-      ? 'Bản trên GitHub Pages chỉ là trang tĩnh, không có máy chủ nên không đăng nhập được. Phần quản lý chạy trên máy chủ Quản lý xe của Công ty.'
+      ? 'Bản trên GitHub Pages chỉ là trang tĩnh, không có máy chủ nên không đăng nhập được. Đăng nhập tại https://quan-ly-xe-my-tho.vercel.app'
       : `Địa chỉ ${location.host || 'này'} không có máy chủ Quản lý xe. Chạy máy chủ (cấu hình quan-ly-xe-api) rồi mở http://localhost:8770 để đăng nhập.`,
     toi: () => goi('toi'),
     dangNhap: (ten, mat_khau) => goi('dang-nhap', 'POST', { ten, mat_khau }),

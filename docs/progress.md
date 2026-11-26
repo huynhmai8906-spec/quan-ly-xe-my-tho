@@ -49,3 +49,8 @@ Người dùng duyệt giai đoạn 1–4 và trả lời 4 câu hỏi mở tron
 ## 26/11/2026: backend thật (ADR-005)
 - server/app.py: đăng nhập, phiên, phân quyền, API số liệu, kết luận, lịch xe, sự cố, nhật ký. 12 kiểm thử bảo mật trong server/test_bao_mat.py đều qua.
 - Đã gỡ shared/data.js và mockups/data.js khỏi kho; số liệu ở server/du_lieu (không đưa lên kho). Sửa nền bản đồ bị OSM chặn.
+
+## 26/11/2026: chạy thật trên Vercel
+- Địa chỉ: https://quan-ly-xe-my-tho.vercel.app (dự án h-c444/quan-ly-xe-my-tho). Root Directory phải để trống (gốc kho); Vercel tự nhận index.py (FastAPI).
+- Ba biến môi trường SF_KHOA_BI_MAT, SF_TAI_KHOAN_JSON, SF_SO_LIEU_JSON (tạo bằng python -m server.xuat_vercel_env).
+- .vercelignore chặn server/du_lieu và .venv khi triển khai từ máy; đã xóa một bản tải từ máy có lẫn tệp số liệu, đã đổi mật khẩu thử và khóa ký phiên.
