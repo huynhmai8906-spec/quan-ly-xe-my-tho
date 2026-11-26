@@ -13,3 +13,5 @@ server/du_lieu/
 shared/data.js
 mockups/data.js
 .vercel/
+.vercel
+.env*
