@@ -15,3 +15,5 @@ mockups/data.js
 .vercel/
 .vercel
 .env*
+# Vercel chép giao diện vào đây lúc build
+public/

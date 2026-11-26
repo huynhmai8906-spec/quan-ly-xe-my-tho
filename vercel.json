@@ -26,5 +26,6 @@
                                         }
                                     ]
                     }
-                ]
+                ],
+    "buildCommand":  "mkdir -p public \u0026\u0026 cp -r web app shared index.html public/"
 }
