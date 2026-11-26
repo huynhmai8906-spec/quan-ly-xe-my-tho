@@ -1,0 +1,3 @@
+﻿# Cho hàm Python trên Vercel (api/index.py)
+fastapi==0.115.6
+argon2-cffi==23.1.0

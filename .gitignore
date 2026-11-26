@@ -12,3 +12,4 @@ server/du_lieu/
 # Số liệu thật chỉ phục vụ qua API sau khi đăng nhập
 shared/data.js
 mockups/data.js
+.vercel/

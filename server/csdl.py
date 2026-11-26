@@ -4,7 +4,9 @@ import sqlite3
 import time
 from contextlib import contextmanager
 
-THU_MUC = os.environ.get('SF_DU_LIEU', os.path.join(os.path.dirname(os.path.abspath(__file__)), 'du_lieu'))
+# Trên Vercel chỉ ghi được vào /tmp (bị xóa khi bản máy chủ tắt)
+THU_MUC = os.environ.get('SF_DU_LIEU') or ('/tmp/quan-ly-xe' if os.environ.get('VERCEL') else
+                                          os.path.join(os.path.dirname(os.path.abspath(__file__)), 'du_lieu'))
 DUONG_DAN = os.path.join(THU_MUC, 'smart_fleet.db')
 
 LUOC_DO = """

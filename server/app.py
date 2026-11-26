@@ -2,9 +2,14 @@
 
 Chạy thử trên máy:  server\\.venv\\Scripts\\python -m uvicorn server.app:app --port 8770
 Biến môi trường:
-  SF_HTTPS=1        bật cờ Secure cho cookie (bắt buộc khi chạy thật qua HTTPS)
-  SF_DU_LIEU=...    thư mục chứa smart_fleet.db và fleet.json (mặc định server/du_lieu)
+  SF_HTTPS=1              bật cờ Secure cho cookie (tự bật trên Vercel)
+  SF_DU_LIEU=...          thư mục chứa smart_fleet.db và fleet.json (mặc định server/du_lieu; trên Vercel là /tmp)
+  SF_KHOA_BI_MAT=...      khóa ký phiên đăng nhập (bắt buộc khi chạy nhiều bản máy chủ như Vercel)
+  SF_SO_LIEU_JSON=...     nội dung fleet.json (khi nền tảng không có tệp bí mật, ví dụ Vercel)
+  SF_TAI_KHOAN_JSON=...   danh sách tài khoản, chỉ mật khẩu đã băm
 """
+import base64
+import hmac
 import hashlib
 import json
 import os
@@ -24,7 +29,7 @@ GOC = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Trên Render, số liệu và danh sách tài khoản (chỉ có mật khẩu đã băm) là Secret File ở /etc/secrets
 TEP_SO_LIEU = os.environ.get('SF_SO_LIEU', os.path.join(csdl.THU_MUC, 'fleet.json'))
 TEP_TAI_KHOAN = os.environ.get('SF_TAI_KHOAN', '')
-HTTPS = os.environ.get('SF_HTTPS', '0') == '1'
+HTTPS = os.environ.get('SF_HTTPS', '0') == '1' or bool(os.environ.get('VERCEL'))
 TEN_COOKIE = 'sf_phien'
 THOI_HAN_PHIEN = 8 * 3600            # một ca làm việc
 SAI_TOI_DA, KHOA_GIAY = 5, 15 * 60   # sai 5 lần thì khóa tài khoản 15 phút
@@ -35,13 +40,16 @@ app = FastAPI(title='Quản lý xe', docs_url=None, redoc_url=None, openapi_url=
 csdl.khoi_tao()
 
 
-def nap_tai_khoan(duong_dan: str):
-    """Nạp tài khoản từ tệp JSON [{ten, mat_khau_bam, vai_tro, xe_ma}] khi khởi động.
-    Ổ đĩa của gói miễn phí bị xóa mỗi lần khởi động lại, nên tài khoản phải nạp lại từ tệp bí mật."""
-    if not duong_dan or not os.path.isfile(duong_dan):
+def nap_tai_khoan(duong_dan: str = '', noi_dung: str = ''):
+    """Nạp tài khoản [{ten, mat_khau_bam, vai_tro, xe_ma}] từ tệp hoặc chuỗi JSON khi khởi động.
+    Ổ đĩa của gói miễn phí (Render, Vercel) bị xóa khi khởi động lại, nên tài khoản phải nạp lại mỗi lần."""
+    if noi_dung:
+        ds = json.loads(noi_dung)
+    elif duong_dan and os.path.isfile(duong_dan):
+        with open(duong_dan, encoding='utf-8') as f:
+            ds = json.load(f)
+    else:
         return 0
-    with open(duong_dan, encoding='utf-8') as f:
-        ds = json.load(f)
     with csdl.ket_noi() as c:
         for t in ds:
             if t.get('vai_tro') not in ('quan-ly', 'tai-xe') or not str(t.get('mat_khau_bam', '')).startswith('$argon2'):
@@ -52,7 +60,7 @@ def nap_tai_khoan(duong_dan: str):
     return len(ds)
 
 
-nap_tai_khoan(TEP_TAI_KHOAN)
+nap_tai_khoan(TEP_TAI_KHOAN, os.environ.get('SF_TAI_KHOAN_JSON', ''))
 
 CSP = ("default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; "
        "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; "
@@ -65,7 +73,7 @@ async def dau_bao_mat(request: Request, call_next):
     # Chặn yêu cầu ghi đến từ trang khác (CSRF): cookie đã SameSite=Strict, thêm kiểm tra Origin và header riêng
     if request.method not in ('GET', 'HEAD', 'OPTIONS') and request.url.path.startswith('/api/'):
         origin = request.headers.get('origin')
-        if origin and origin.rstrip('/') != f'{request.url.scheme}://{request.url.netloc}':
+        if origin and origin.rstrip('/').split('://')[-1] != request.headers.get('host', ''):
             return JSONResponse({'loi': 'Yêu cầu không hợp lệ'}, status_code=403)
         if request.headers.get('x-sf') != '1':
             return JSONResponse({'loi': 'Yêu cầu không hợp lệ'}, status_code=403)
@@ -82,9 +90,44 @@ async def dau_bao_mat(request: Request, call_next):
     return r
 
 
-# ---------- Phiên đăng nhập
-def _bam(token: str) -> str:
-    return hashlib.sha256(token.encode()).hexdigest()
+# ---------- Phiên đăng nhập: token ký HMAC-SHA256 (tên, hạn, mã phiên, dấu mật khẩu)
+# Máy chủ tự kiểm chữ ký nên không cần lưu phiên; đổi mật khẩu thì dấu mật khẩu đổi, mọi phiên cũ mất hiệu lực.
+def _khoa_ky() -> bytes:
+    k = os.environ.get('SF_KHOA_BI_MAT', '')
+    if k:
+        return k.encode()
+    p = os.path.join(csdl.THU_MUC, 'khoa-phien.bin')      # chạy trên máy: tự sinh và giữ trong thư mục dữ liệu
+    if not os.path.isfile(p):
+        with open(p, 'wb') as f:
+            f.write(secrets.token_bytes(32))
+    with open(p, 'rb') as f:
+        return f.read()
+
+
+KHOA_KY = _khoa_ky()
+
+
+def _b64(b: bytes) -> str:
+    return base64.urlsafe_b64encode(b).rstrip(b'=').decode()
+
+
+def _dau_mk(mat_khau_bam: str) -> str:
+    return hashlib.sha256(mat_khau_bam.encode()).hexdigest()[:16]
+
+
+def tao_token(ten: str, mat_khau_bam: str, het_han: float) -> str:
+    than = _b64(json.dumps([ten, int(het_han), secrets.token_hex(8), _dau_mk(mat_khau_bam)], separators=(',', ':')).encode())
+    return than + '.' + _b64(hmac.new(KHOA_KY, than.encode(), hashlib.sha256).digest())
+
+
+def doc_token(token: str):
+    try:
+        than, chu_ky = token.split('.')
+        if not hmac.compare_digest(chu_ky, _b64(hmac.new(KHOA_KY, than.encode(), hashlib.sha256).digest())):
+            return None
+        return json.loads(base64.urlsafe_b64decode(than + '=' * (-len(than) % 4)))
+    except (ValueError, TypeError):
+        return None
 
 
 def _ip(request: Request) -> str:
@@ -98,17 +141,16 @@ class NguoiDung(BaseModel):
 
 
 def nguoi_dung(request: Request) -> NguoiDung:
-    token = request.cookies.get(TEN_COOKIE)
-    if not token:
-        raise HTTPException(401, 'Chưa đăng nhập')
+    d = doc_token(request.cookies.get(TEN_COOKIE, ''))
+    if not d or d[1] < time.time():
+        raise HTTPException(401, 'Chưa đăng nhập hoặc phiên đã hết hạn')
+    ten, _, ma_phien, dau = d
     with csdl.ket_noi() as c:
-        h = c.execute('SELECT t.ten, t.vai_tro, t.xe_ma, p.het_han FROM phien p JOIN tai_khoan t ON t.ten = p.ten WHERE p.token_bam = ?',
-                      (_bam(token),)).fetchone()
-        if not h or h['het_han'] < time.time():
-            if h:
-                c.execute('DELETE FROM phien WHERE token_bam = ?', (_bam(token),))
-            raise HTTPException(401, 'Phiên đã hết hạn')
-    return NguoiDung(ten=h['ten'], vai_tro=h['vai_tro'], xe_ma=h['xe_ma'])
+        t = c.execute('SELECT ten, vai_tro, xe_ma, mat_khau_bam FROM tai_khoan WHERE ten = ?', (ten,)).fetchone()
+        thu_hoi = c.execute('SELECT 1 FROM phien WHERE token_bam = ?', (ma_phien,)).fetchone()
+    if not t or thu_hoi or not hmac.compare_digest(dau, _dau_mk(t['mat_khau_bam'])):
+        raise HTTPException(401, 'Phiên không còn hiệu lực')
+    return NguoiDung(ten=t['ten'], vai_tro=t['vai_tro'], xe_ma=t['xe_ma'])
 
 
 def quan_ly(n: NguoiDung = Depends(nguoi_dung)) -> NguoiDung:
@@ -152,8 +194,7 @@ def dang_nhap(d: DangNhap, request: Request, response: Response):
             c.execute('UPDATE tai_khoan SET mat_khau_bam = ? WHERE ten = ?', (ph.hash(d.mat_khau), ten))
         c.execute('UPDATE tai_khoan SET sai_lien_tiep = 0, khoa_den = 0 WHERE ten = ?', (ten,))
         c.execute('DELETE FROM phien WHERE het_han < ?', (now,))
-        token = secrets.token_urlsafe(32)
-        c.execute('INSERT INTO phien (token_bam, ten, het_han, tao_luc) VALUES (?, ?, ?, ?)', (_bam(token), ten, now + THOI_HAN_PHIEN, now))
+        token = tao_token(ten, t['mat_khau_bam'], now + THOI_HAN_PHIEN)
         csdl.ghi_nhat_ky(c, ten, 'dang-nhap', ip=_ip(request))
     response.set_cookie(TEN_COOKIE, token, max_age=THOI_HAN_PHIEN, httponly=True, secure=HTTPS, samesite='strict', path='/')
     return {'ten': ten, 'vai_tro': t['vai_tro'], 'xe_ma': t['xe_ma']}
@@ -161,10 +202,11 @@ def dang_nhap(d: DangNhap, request: Request, response: Response):
 
 @app.post('/api/dang-xuat')
 def dang_xuat(request: Request, response: Response):
-    token = request.cookies.get(TEN_COOKIE)
-    if token:
+    # Bảng phien giờ là danh sách mã phiên đã thu hồi (đăng xuất) cho tới khi hết hạn
+    d = doc_token(request.cookies.get(TEN_COOKIE, ''))
+    if d:
         with csdl.ket_noi() as c:
-            c.execute('DELETE FROM phien WHERE token_bam = ?', (_bam(token),))
+            c.execute('INSERT OR IGNORE INTO phien (token_bam, ten, het_han, tao_luc) VALUES (?, ?, ?, ?)', (d[2], d[0], d[1], time.time()))
     response.delete_cookie(TEN_COOKIE, path='/', httponly=True, secure=HTTPS, samesite='strict')
     return {'ok': True}
 
@@ -175,9 +217,18 @@ def toi(n: NguoiDung = Depends(nguoi_dung)):
 
 
 # ---------- Số liệu: quản lý xem cả đội, tài xế chỉ xem xe được giao
+_SO_LIEU = None
+
+
 def _so_lieu():
-    with open(TEP_SO_LIEU, encoding='utf-8') as f:
-        return json.load(f)
+    global _SO_LIEU
+    if _SO_LIEU is None:
+        if os.environ.get('SF_SO_LIEU_JSON'):
+            _SO_LIEU = json.loads(os.environ['SF_SO_LIEU_JSON'])
+        else:
+            with open(TEP_SO_LIEU, encoding='utf-8') as f:
+                _SO_LIEU = json.load(f)
+    return json.loads(json.dumps(_SO_LIEU))   # bản sao, để lọc theo vai trò không sửa bản gốc
 
 
 @app.get('/api/du-lieu')
@@ -278,7 +329,8 @@ def bao_su_co(s: SuCo, request: Request, n: NguoiDung = Depends(nguoi_dung)):
 
 # ---------- Tệp giao diện: chỉ phục vụ ba thư mục này, không lộ server/, docs/, tools/
 for thu_muc in ('web', 'app', 'shared'):
-    app.mount(f'/{thu_muc}', StaticFiles(directory=os.path.join(GOC, thu_muc), html=True), name=thu_muc)
+    if os.path.isdir(os.path.join(GOC, thu_muc)):
+        app.mount(f'/{thu_muc}', StaticFiles(directory=os.path.join(GOC, thu_muc), html=True), name=thu_muc)
 
 
 @app.get('/')

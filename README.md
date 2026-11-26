@@ -24,6 +24,16 @@ server/.venv/Scripts/python -m uvicorn server.app:app --port 8770
 
 Rồi vào `http://localhost:8770/`. Khi chạy thật qua HTTPS, đặt biến môi trường `SF_HTTPS=1` để cookie phiên có cờ Secure. Kiểm thử bảo mật: `server/.venv/Scripts/python -m pytest server -q`.
 
+## Chạy trên Vercel
+
+Kho có sẵn `vercel.json` và `api/index.py`: giao diện do CDN của Vercel phục vụ, `/api/*` chạy FastAPI dưới dạng hàm Python. Nhập kho vào Vercel (Framework Preset: Other, không cần lệnh build), rồi trong Settings → Environment Variables thêm 3 biến (dán cả tệp `.env`):
+
+- `SF_KHOA_BI_MAT`: khóa ký phiên đăng nhập, chuỗi ngẫu nhiên dài.
+- `SF_TAI_KHOAN_JSON`: danh sách tài khoản, chỉ mật khẩu đã băm.
+- `SF_SO_LIEU_JSON`: số liệu thật (nội dung `fleet.json` dạng gọn).
+
+Lệnh `python -m server.xuat_vercel_env` tạo sẵn tệp `server/du_lieu/vercel.env` gồm đủ 3 biến (tệp không đưa lên kho). Thêm biến xong thì Redeploy. Phiên đăng nhập là token ký HMAC nên dùng được khi mỗi lần gọi rơi vào một bản máy chủ khác; kết luận, lịch xe và sự cố ghi trong `/tmp` sẽ mất khi bản máy chủ tắt.
+
 ## Chạy trên Render
 
 `render.yaml` mô tả dịch vụ. Trong trang Environment của dịch vụ, thêm hai Secret File (không đưa lên kho):

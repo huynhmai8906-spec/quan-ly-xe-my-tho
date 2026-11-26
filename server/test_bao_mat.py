@@ -127,3 +127,38 @@ def test_nap_tai_khoan_chi_nhan_mat_khau_da_bam(tmp_path, c):
     a.nap_tai_khoan(str(p))
     assert dn(c, 'moi', 'mat-khau-moi-123').status_code == 200
     assert dn(c, 'chu-thuong', 'mat-khau-chu-thuong').status_code == 401
+
+
+def _ban_may_chu(tmp, monkeypatch, khoa, so_lieu_json, tk_json):
+    # Một "bản máy chủ" mới: cơ sở dữ liệu riêng, số liệu và tài khoản lấy từ biến môi trường như trên Vercel
+    monkeypatch.setenv('SF_DU_LIEU', str(tmp)); monkeypatch.setenv('SF_KHOA_BI_MAT', khoa)
+    monkeypatch.setenv('SF_SO_LIEU_JSON', so_lieu_json); monkeypatch.setenv('SF_TAI_KHOAN_JSON', tk_json)
+    for m in [k for k in sys.modules if k.startswith('server')]:
+        del sys.modules[m]
+    return TestClient(importlib.import_module('server.app').app, base_url='https://quan-ly-xe.vercel.app')
+
+
+def test_phien_dung_duoc_giua_cac_ban_may_chu(tmp_path, monkeypatch):
+    from argon2 import PasswordHasher
+    so_lieu = json.dumps(json.load(open(os.path.join(GOC, 'server', 'du_lieu', 'fleet.json'), encoding='utf-8')), ensure_ascii=False, separators=(',', ':'))
+    tk = json.dumps([{'ten': 'ql', 'mat_khau_bam': PasswordHasher().hash(MK_QL), 'vai_tro': 'quan-ly'}])
+    (tmp_path / 'a').mkdir(); (tmp_path / 'b').mkdir(); (tmp_path / 'c').mkdir()
+    a = _ban_may_chu(tmp_path / 'a', monkeypatch, 'khoa-chung-' + 'x' * 32, so_lieu, tk)
+    assert dn(a, 'ql', MK_QL).status_code == 200
+    tok = a.cookies.get('sf_phien')
+    b = _ban_may_chu(tmp_path / 'b', monkeypatch, 'khoa-chung-' + 'x' * 32, so_lieu, tk)
+    b.cookies.set('sf_phien', tok)
+    assert len(b.get('/api/du-lieu').json()['xe']) == 42             # bản khác, cùng khóa: phiên vẫn dùng được
+    c = _ban_may_chu(tmp_path / 'c', monkeypatch, 'khoa-khac-' + 'y' * 32, so_lieu, tk)
+    c.cookies.set('sf_phien', tok)
+    assert c.get('/api/du-lieu').status_code == 401                   # khóa khác: token bị từ chối
+    than, ky = tok.split('.')
+    b.cookies.set('sf_phien', than[:-2] + 'AA.' + ky)
+    assert b.get('/api/du-lieu').status_code == 401                   # sửa nội dung token: chữ ký sai
+
+
+def test_doi_mat_khau_lam_mat_phien_cu(c):
+    dn(c, 'ql1', MK_QL)
+    import server.tao_tai_khoan as tk
+    tk.tao('ql1', 'quan-ly', None, 'mat-khau-moi-' + os.urandom(4).hex())
+    assert c.get('/api/du-lieu').status_code == 401
