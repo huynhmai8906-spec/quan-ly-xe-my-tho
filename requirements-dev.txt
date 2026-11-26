@@ -1,0 +1,4 @@
+# Them thu vien de chay kiem thu
+-r requirements.txt
+httpx==0.28.1
+pytest==8.3.4

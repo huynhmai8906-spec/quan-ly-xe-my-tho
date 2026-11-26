@@ -23,8 +23,14 @@ from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from . import csdl
+try:
+    from . import csdl
+except ImportError:   # nền tảng nạp app.py như tệp độc lập, không phải gói server
+    import sys
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import csdl
 
+# Thư mục gốc kho (chứa web/, app/, shared/)
 GOC = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Trên Render, số liệu và danh sách tài khoản (chỉ có mật khẩu đã băm) là Secret File ở /etc/secrets
 TEP_SO_LIEU = os.environ.get('SF_SO_LIEU', os.path.join(csdl.THU_MUC, 'fleet.json'))

@@ -16,7 +16,7 @@ Giao diện là HTML, CSS và JavaScript thuần; backend là Python FastAPI (th
 
 ```
 python -m venv server/.venv
-server/.venv/Scripts/python -m pip install -r server/requirements.txt
+server/.venv/Scripts/python -m pip install -r requirements-dev.txt
 server/.venv/Scripts/python -m server.tao_tai_khoan quanly01 quan-ly
 server/.venv/Scripts/python -m server.tao_tai_khoan taixe01 tai-xe X05
 server/.venv/Scripts/python -m uvicorn server.app:app --port 8770

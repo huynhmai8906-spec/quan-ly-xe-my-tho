@@ -8,7 +8,7 @@ services:
     runtime: python
     plan: free
     region: singapore
-    buildCommand: pip install -r server/requirements.txt
+    buildCommand: pip install -r requirements.txt
     # --proxy-headers: Render chạy sau proxy HTTPS; cần để máy chủ biết yêu cầu đến qua https (kiểm tra Origin, cookie Secure)
     startCommand: uvicorn server.app:app --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips="*"
     healthCheckPath: /web/index.html
