@@ -1,4 +1,4 @@
-﻿/* App tài xế: cùng quy chuẩn serif, góc vuông; vùng bấm tối thiểu 48px, nút chính nằm nửa dưới màn hình để bấm bằng ngón cái */
+/* App tài xế: cùng quy chuẩn serif, góc vuông; vùng bấm tối thiểu 48px, nút chính nằm nửa dưới màn hình để bấm bằng ngón cái */
 body { min-height: 100dvh; }
 .man { min-height: 100dvh; max-width: 440px; margin: 0 auto; display: flex; flex-direction: column; padding: 24px 20px calc(20px + env(safe-area-inset-bottom)); }
 .pin-dau { text-align: center; margin-top: 6vh; color: var(--muc); }
@@ -19,7 +19,7 @@ body { min-height: 100dvh; }
 .dau-app { position: sticky; top: 0; z-index: 600; display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; background: var(--nen); border-bottom: 1px solid var(--vien); color: var(--nhan-2); font: italic 400 19px/1.3 var(--nghieng); }
 .dau-app .che-do { display: flex; gap: 2px; font: 12px var(--serif); }
 .dau-app .che-do button { background: none; border: 0; color: #8C8C8C; min-height: 40px; padding: 0 6px; font: inherit;  cursor: pointer; }
-.dau-app .che-do button[aria-pressed="true"] { color: #fff; font-weight: 700; }
+.dau-app .che-do button[aria-pressed="true"] { color: var(--muc); font-weight: 700; }
 .dau-app .che-do span { color: #555; align-self: center; }
 .thanh-duoi { position: fixed; left: 0; right: 0; bottom: 0; z-index: 700; display: grid; grid-template-columns: repeat(3, 1fr); max-width: 480px; margin: 0 auto; background: var(--nen); border-top: 1px solid var(--muc); padding-bottom: env(safe-area-inset-bottom); }
 .thanh-duoi button { min-height: 64px; background: none; border: 0; display: grid; justify-items: center; align-content: center; gap: 2px; font: 600 11px var(--serif); letter-spacing: 1px;  color: var(--nhat); cursor: pointer; }
