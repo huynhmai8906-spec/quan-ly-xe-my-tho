@@ -434,8 +434,13 @@
       el('p', { class: 'nhan-muc', text: 'Khu vực nội bộ' }),
       el('h1', { text: 'Đăng nhập quản lý xe' }),
       el('p', { class: 'dan', text: 'Các mục Tổng quan, Cảnh báo, Đội xe, Nhiên liệu, Điều phối và Báo cáo có số liệu vận hành của Công ty, chỉ mở cho tài khoản được cấp.' }),
-      n && n.vai_tro !== 'quan-ly'
-        ? el('p', { class: 'loi-dn', text: `Tài khoản ${n.ten} là tài khoản tài xế; hãy dùng app tài xế.` })
+      window.KHONG_MAY_CHU
+        ? el('div', {}, el('p', { class: 'loi-dn', text: window.LOI_KET_NOI }),
+            /^(localhost|127\.0\.0\.1)$/.test(location.hostname) && location.port !== '8770'
+              ? el('a', { class: 'nut dac', href: `http://localhost:8770/web/index.html#${id}` }, 'Mở trang có máy chủ') : null)
+        : n && n.vai_tro !== 'quan-ly'
+        ? el('div', {}, el('p', { class: 'loi-dn', text: `Bạn đang đăng nhập bằng tài khoản tài xế ${n.ten}. Tài khoản này chỉ dùng app tài xế; đăng xuất để đăng nhập bằng tài khoản quản lý.` }),
+            el('button', { class: 'nut dac', type: 'button', onclick: async () => { try { await API.dangXuat(); } finally { location.reload(); } } }, 'Đăng xuất để đổi tài khoản'))
         : el('div', {}, el('label', { for: 'dn-ten', text: 'Tên đăng nhập' }), ten, el('label', { for: 'dn-mk', text: 'Mật khẩu' }), mk, loi, nut),
       el('p', { class: 'ghi', text: 'Nhập sai 5 lần liên tiếp thì tài khoản tạm khóa 15 phút. Phiên đăng nhập hết hạn sau 8 giờ.' }));
     trang.append(el('section', { class: 'muc muc-den' }, el('div', { class: 'khung-rong' }, form)));
