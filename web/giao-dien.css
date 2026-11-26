@@ -235,3 +235,6 @@ details.ket-luan textarea { width: 100%; min-height: 70px; margin: 12px 0; paddi
 .tb-nguoi { font-weight: 700; }
 .tb-thoat { background: none; border: 1px solid currentColor; border-radius: 999px; padding: 2px 12px; color: inherit; font: inherit; font-size: 13px; cursor: pointer; }
 .tb-nguoi, .tb-thoat { white-space: nowrap; }
+
+/* Lưới ảnh "Đô thị xanh, sạch, đẹp": khung ảnh lấp đầy ô, không giữ tỉ lệ 16:10 mặc định (tránh dải xám dưới ảnh) */
+.luoi-anh figure > .anh-khung { position: absolute; inset: 0; aspect-ratio: auto; height: 100%; border-radius: 0; }
